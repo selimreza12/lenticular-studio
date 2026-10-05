@@ -1,27 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950 text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+<html lang="en" class="h-full bg-slate-100 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lenticular Studio — Print-Ready Interlacing Engine & Simulator</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        slate: {
-                            850: '#151c2c',
-                            900: '#0f172a',
-                            950: '#090d16',
-                        },
                         studio: {
-                            panel: '#111622',
-                            card: '#161c2a',
-                            border: '#232b3e',
-                            hover: '#2d374d',
+                            bg: '#f8fafc',
+                            panel: '#ffffff',
+                            card: '#f1f5f9',
+                            border: '#e2e8f0',
+                            borderDark: '#cbd5e1',
+                            hover: '#e2e8f0',
                             accent: '#4f46e5',
                             accentHover: '#4338ca',
                         }
@@ -34,40 +30,41 @@
         }
     </script>
     <style>
-        /* Custom dark scrollbar */
+        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #090d16; }
-        ::-webkit-scrollbar-thumb { background: #232b3e; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* Range slider styling */
         input[type="range"] {
             -webkit-appearance: none;
-            background: #232b3e;
+            background: #e2e8f0;
             border-radius: 9999px;
             height: 6px;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
+            height: 18px;
+            width: 18px;
             border-radius: 50%;
-            background: #6366f1;
+            background: #4f46e5;
             cursor: pointer;
-            box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+            box-shadow: 0 1px 4px rgba(79, 70, 229, 0.4);
+            border: 2px solid #ffffff;
             transition: transform 0.1s ease;
         }
         input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
+            transform: scale(1.15);
         }
 
-        /* Lenticular Simulation Lens Ridges Overlay */
+        /* Virtual Lenticular Optical Ridges Overlay */
         .lens-overlay-vertical {
             background: repeating-linear-gradient(
                 90deg,
-                rgba(255, 255, 255, 0.08) 0px,
-                rgba(0, 0, 0, 0.35) 1px,
-                rgba(255, 255, 255, 0.03) 2px,
+                rgba(255, 255, 255, 0.35) 0px,
+                rgba(255, 255, 255, 0.15) 1px,
+                rgba(0, 0, 0, 0.08) 2px,
                 transparent 3px,
                 transparent var(--lens-pitch, 8px)
             );
@@ -75,47 +72,52 @@
         .lens-overlay-horizontal {
             background: repeating-linear-gradient(
                 180deg,
-                rgba(255, 255, 255, 0.08) 0px,
-                rgba(0, 0, 0, 0.35) 1px,
-                rgba(255, 255, 255, 0.03) 2px,
+                rgba(255, 255, 255, 0.35) 0px,
+                rgba(255, 255, 255, 0.15) 1px,
+                rgba(0, 0, 0, 0.08) 2px,
                 transparent 3px,
                 transparent var(--lens-pitch, 8px)
             );
         }
+
+        /* Prevent swipe gestures from pulling down the page on mobile */
+        #simulatorWrapper {
+            touch-action: none;
+        }
     </style>
 </head>
-<body class="h-full flex flex-col overflow-hidden bg-slate-950 font-sans text-sm select-none">
+<body class="h-full flex flex-col overflow-hidden bg-slate-100 font-sans text-xs sm:text-sm select-none">
 
-    <!-- Top Navigation Header -->
-    <header class="h-14 border-b border-studio-border bg-studio-panel px-5 flex items-center justify-between z-20 shrink-0">
+    <!-- Header Navigation -->
+    <header class="h-14 border-b border-studio-border bg-white px-4 sm:px-6 flex items-center justify-between z-30 shrink-0 shadow-sm">
         <div class="flex items-center space-x-3">
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/40 text-indigo-400">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
                 </svg>
             </div>
             <div>
-                <h1 class="text-base font-semibold text-slate-100 leading-tight">Lenticular Studio</h1>
-                <p class="text-[11px] text-slate-400">Interactive Lenticular Simulator & Print-Ready Interlacing Engine</p>
+                <h1 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">Lenticular Studio</h1>
+                <p class="hidden sm:block text-[11px] text-slate-500">Interactive Lenticular Simulator & Print Interlacing Engine</p>
             </div>
         </div>
 
         <!-- Header Actions & Status Badges -->
-        <div class="flex items-center space-x-3">
-            <div id="statusBadge" class="flex items-center space-x-2 px-2.5 py-1 rounded-full bg-slate-900 border border-studio-border text-xs text-slate-300">
-                <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" id="statusDot"></span>
-                <span id="statusText">Waiting for Images</span>
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <div id="statusBadge" class="flex items-center space-x-2 px-2.5 py-1 rounded-full bg-slate-50 border border-studio-border text-xs text-slate-700">
+                <span class="w-2 h-2 rounded-full bg-amber-500" id="statusDot"></span>
+                <span id="statusText" class="font-medium text-[11px] sm:text-xs">Waiting for Images</span>
             </div>
 
-            <button id="btnOpenHelp" class="px-2.5 py-1.5 rounded-lg border border-studio-border bg-studio-card hover:bg-studio-hover text-slate-300 hover:text-white transition text-xs flex items-center space-x-1.5" title="User Documentation">
-                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="btnOpenHelp" class="px-2.5 py-1.5 rounded-lg border border-studio-border bg-white hover:bg-slate-50 text-slate-700 transition text-xs flex items-center space-x-1" title="User Documentation">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <span>Guide</span>
+                <span class="hidden sm:inline">Guide</span>
             </button>
 
-            <button id="btnResetStudio" class="px-2.5 py-1.5 rounded-lg border border-rose-900/40 bg-rose-950/20 hover:bg-rose-900/40 text-rose-300 hover:text-rose-100 transition text-xs flex items-center space-x-1.5" title="Reset all inputs, settings, and output">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="btnResetStudio" class="px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 transition text-xs flex items-center space-x-1" title="Reset all">
+                <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
                 <span>Reset</span>
@@ -123,18 +125,28 @@
         </div>
     </header>
 
-    <!-- Main Workspace Layout -->
-    <main class="flex-1 flex overflow-hidden">
+    <!-- Mobile Navigation Tab Bar (visible only on screens < lg) -->
+    <div class="lg:hidden flex border-b border-studio-border bg-white px-2 py-1.5 gap-2 shrink-0 z-20">
+        <button id="mobileTabControls" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition">
+            ⚙️ Controls & Upload
+        </button>
+        <button id="mobileTabPreview" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition">
+            👁️ Preview & Output
+        </button>
+    </div>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         
         <!-- LEFT PANEL: Controls (Scrollable) -->
-        <aside class="w-[420px] shrink-0 border-r border-studio-border bg-studio-panel flex flex-col overflow-y-auto">
+        <aside id="controlsPanel" class="w-full lg:w-[420px] shrink-0 border-r border-studio-border bg-white flex flex-col overflow-y-auto z-10">
             <div class="p-4 space-y-4">
 
                 <!-- SECTION 1: Dual Image Upload -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">1. Source Views</span>
-                        <button id="btnSwapImages" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1 disabled:opacity-40 disabled:pointer-events-none" disabled>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">1. Source Views</span>
+                        <button id="btnSwapImages" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1 disabled:opacity-40 disabled:pointer-events-none" disabled>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                             </svg>
@@ -143,33 +155,33 @@
                     </div>
 
                     <!-- Dropzone A -->
-                    <div id="dropzoneA" class="group relative rounded-xl border-2 border-dashed border-studio-border bg-studio-card p-3 transition hover:border-indigo-500/60 hover:bg-slate-900/60">
+                    <div id="dropzoneA" class="group relative rounded-xl border-2 border-dashed border-studio-border bg-slate-50 p-3 transition hover:border-indigo-400 hover:bg-indigo-50/30">
                         <input type="file" id="fileInputA" accept="image/png, image/jpeg, image/webp" class="hidden">
                         
-                        <div id="emptyA" class="flex flex-col items-center justify-center py-3 cursor-pointer">
-                            <div class="p-2 rounded-full bg-slate-800 text-indigo-400 group-hover:scale-110 transition">
+                        <div id="emptyA" class="flex flex-col items-center justify-center py-2.5 cursor-pointer">
+                            <div class="p-2 rounded-full bg-white shadow-sm border border-slate-200 text-indigo-600 group-hover:scale-105 transition">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                             </div>
-                            <span class="mt-2 text-xs font-medium text-slate-200">Image A — View 1 (Anchor)</span>
-                            <span class="text-[11px] text-slate-400 mt-0.5">Drag & drop or click to browse (PNG, JPG, WEBP)</span>
+                            <span class="mt-2 text-xs font-semibold text-slate-800">Image A — View 1 (Anchor)</span>
+                            <span class="text-[11px] text-slate-500 mt-0.5">Drag & drop or tap to browse</span>
                         </div>
 
                         <div id="loadedA" class="hidden flex items-center justify-between">
                             <div class="flex items-center space-x-3 overflow-hidden">
-                                <img id="thumbA" class="w-12 h-12 object-cover rounded-lg border border-studio-border bg-black shrink-0" alt="Preview A">
+                                <img id="thumbA" class="w-12 h-12 object-cover rounded-lg border border-slate-200 bg-slate-100 shrink-0" alt="Preview A">
                                 <div class="truncate">
                                     <div class="flex items-center space-x-1.5">
-                                        <span class="text-xs font-semibold text-slate-200 truncate" id="nameA">image-a.jpg</span>
-                                        <span class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-900/50 text-indigo-300 font-mono" id="fmtA">JPG</span>
+                                        <span class="text-xs font-semibold text-slate-800 truncate" id="nameA">image-a.jpg</span>
+                                        <span class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 font-mono font-medium" id="fmtA">JPG</span>
                                     </div>
-                                    <div class="text-[11px] text-slate-400 font-mono mt-0.5" id="metaA">0x0 • 0 KB</div>
+                                    <div class="text-[11px] text-slate-500 font-mono mt-0.5" id="metaA">0x0 • 0 KB</div>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-1 shrink-0">
-                                <button id="btnReplaceA" class="p-1.5 rounded-lg hover:bg-studio-hover text-slate-400 hover:text-slate-200 transition" title="Replace Image">
+                                <button id="btnReplaceA" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 transition" title="Replace Image">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 </button>
-                                <button id="btnRemoveA" class="p-1.5 rounded-lg hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 transition" title="Remove Image">
+                                <button id="btnRemoveA" class="p-1.5 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition" title="Remove Image">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
                             </div>
@@ -177,33 +189,33 @@
                     </div>
 
                     <!-- Dropzone B -->
-                    <div id="dropzoneB" class="group relative rounded-xl border-2 border-dashed border-studio-border bg-studio-card p-3 transition hover:border-indigo-500/60 hover:bg-slate-900/60">
+                    <div id="dropzoneB" class="group relative rounded-xl border-2 border-dashed border-studio-border bg-slate-50 p-3 transition hover:border-indigo-400 hover:bg-indigo-50/30">
                         <input type="file" id="fileInputB" accept="image/png, image/jpeg, image/webp" class="hidden">
                         
-                        <div id="emptyB" class="flex flex-col items-center justify-center py-3 cursor-pointer">
-                            <div class="p-2 rounded-full bg-slate-800 text-indigo-400 group-hover:scale-110 transition">
+                        <div id="emptyB" class="flex flex-col items-center justify-center py-2.5 cursor-pointer">
+                            <div class="p-2 rounded-full bg-white shadow-sm border border-slate-200 text-indigo-600 group-hover:scale-105 transition">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                             </div>
-                            <span class="mt-2 text-xs font-medium text-slate-200">Image B — View 2</span>
-                            <span class="text-[11px] text-slate-400 mt-0.5">Drag & drop or click to browse (PNG, JPG, WEBP)</span>
+                            <span class="mt-2 text-xs font-semibold text-slate-800">Image B — View 2</span>
+                            <span class="text-[11px] text-slate-500 mt-0.5">Drag & drop or tap to browse</span>
                         </div>
 
                         <div id="loadedB" class="hidden flex items-center justify-between">
                             <div class="flex items-center space-x-3 overflow-hidden">
-                                <img id="thumbB" class="w-12 h-12 object-cover rounded-lg border border-studio-border bg-black shrink-0" alt="Preview B">
+                                <img id="thumbB" class="w-12 h-12 object-cover rounded-lg border border-slate-200 bg-slate-100 shrink-0" alt="Preview B">
                                 <div class="truncate">
                                     <div class="flex items-center space-x-1.5">
-                                        <span class="text-xs font-semibold text-slate-200 truncate" id="nameB">image-b.jpg</span>
-                                        <span class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-900/50 text-indigo-300 font-mono" id="fmtB">JPG</span>
+                                        <span class="text-xs font-semibold text-slate-800 truncate" id="nameB">image-b.jpg</span>
+                                        <span class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 font-mono font-medium" id="fmtB">JPG</span>
                                     </div>
-                                    <div class="text-[11px] text-slate-400 font-mono mt-0.5" id="metaB">0x0 • 0 KB</div>
+                                    <div class="text-[11px] text-slate-500 font-mono mt-0.5" id="metaB">0x0 • 0 KB</div>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-1 shrink-0">
-                                <button id="btnReplaceB" class="p-1.5 rounded-lg hover:bg-studio-hover text-slate-400 hover:text-slate-200 transition" title="Replace Image">
+                                <button id="btnReplaceB" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 transition" title="Replace Image">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 </button>
-                                <button id="btnRemoveB" class="p-1.5 rounded-lg hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 transition" title="Remove Image">
+                                <button id="btnRemoveB" class="p-1.5 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition" title="Remove Image">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
                             </div>
@@ -212,35 +224,35 @@
                 </div>
 
                 <!-- SECTION 2: Normalization & Alignment -->
-                <div class="p-3.5 rounded-xl bg-studio-card border border-studio-border space-y-3">
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-studio-border space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">2. Normalization & Fit</span>
-                        <button id="btnAutoAlign" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">Auto-Center</button>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">2. Normalization & Fit</span>
+                        <button id="btnAutoAlign" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold">Auto-Center</button>
                     </div>
 
                     <!-- Fitting Modes -->
                     <div class="grid grid-cols-3 gap-2">
-                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-indigo-600 bg-indigo-600/20 text-indigo-300 transition" data-fit="cover">Cover (Fill)</button>
-                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-slate-900 text-slate-400 hover:border-slate-700 transition" data-fit="contain">Contain</button>
-                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-slate-900 text-slate-400 hover:border-slate-700 transition" data-fit="stretch">Stretch</button>
+                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-indigo-600 bg-indigo-50 text-indigo-700 transition" data-fit="cover">Cover (Fill)</button>
+                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 hover:border-slate-300 transition" data-fit="contain">Contain</button>
+                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 hover:border-slate-300 transition" data-fit="stretch">Stretch</button>
                     </div>
 
-                    <!-- Micro Alignments for View B relative to Anchor A -->
-                    <div class="pt-2 border-t border-studio-border/60 space-y-2.5">
-                        <span class="text-[11px] font-medium text-slate-400">View B Alignment Offsets</span>
+                    <!-- Micro Alignments -->
+                    <div class="pt-2 border-t border-studio-border space-y-2.5">
+                        <span class="text-[11px] font-semibold text-slate-600">View B Alignment Offsets</span>
 
                         <div class="grid grid-cols-2 gap-3 text-xs">
                             <div>
-                                <div class="flex justify-between text-slate-400 mb-1">
+                                <div class="flex justify-between text-slate-500 mb-1">
                                     <span>Offset X</span>
-                                    <span id="valOffsetX" class="font-mono text-slate-300">0px</span>
+                                    <span id="valOffsetX" class="font-mono text-slate-700 font-medium">0px</span>
                                 </div>
                                 <input type="range" id="sliderOffsetX" min="-200" max="200" value="0" class="w-full">
                             </div>
                             <div>
-                                <div class="flex justify-between text-slate-400 mb-1">
+                                <div class="flex justify-between text-slate-500 mb-1">
                                     <span>Offset Y</span>
-                                    <span id="valOffsetY" class="font-mono text-slate-300">0px</span>
+                                    <span id="valOffsetY" class="font-mono text-slate-700 font-medium">0px</span>
                                 </div>
                                 <input type="range" id="sliderOffsetY" min="-200" max="200" value="0" class="w-full">
                             </div>
@@ -248,16 +260,16 @@
 
                         <div class="grid grid-cols-2 gap-3 text-xs">
                             <div>
-                                <div class="flex justify-between text-slate-400 mb-1">
+                                <div class="flex justify-between text-slate-500 mb-1">
                                     <span>Scale</span>
-                                    <span id="valScale" class="font-mono text-slate-300">1.00x</span>
+                                    <span id="valScale" class="font-mono text-slate-700 font-medium">1.00x</span>
                                 </div>
                                 <input type="range" id="sliderScale" min="0.5" max="1.5" step="0.01" value="1.0" class="w-full">
                             </div>
                             <div>
-                                <div class="flex justify-between text-slate-400 mb-1">
+                                <div class="flex justify-between text-slate-500 mb-1">
                                     <span>Rotation</span>
-                                    <span id="valRotation" class="font-mono text-slate-300">0.0°</span>
+                                    <span id="valRotation" class="font-mono text-slate-700 font-medium">0.0°</span>
                                 </div>
                                 <input type="range" id="sliderRotation" min="-15" max="15" step="0.1" value="0" class="w-full">
                             </div>
@@ -266,197 +278,196 @@
                 </div>
 
                 <!-- SECTION 3: Simulation & Interactive Dynamics -->
-                <div class="p-3.5 rounded-xl bg-studio-card border border-studio-border space-y-3">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">3. Lenticular Simulation</span>
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-studio-border space-y-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">3. Lenticular Simulation</span>
 
                     <div class="grid grid-cols-2 gap-2 text-xs">
-                        <button id="modePointer" class="sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-600/20 text-indigo-300 font-medium transition">Pointer Tracking</button>
-                        <button id="modeLoop" class="sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-slate-900 text-slate-400 hover:border-slate-700 transition">Auto-Loop</button>
+                        <button id="modePointer" class="sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition">Pointer / Swipe</button>
+                        <button id="modeLoop" class="sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 hover:border-slate-300 font-medium transition">Auto-Loop</button>
                     </div>
 
                     <!-- Direction Selection -->
                     <div class="flex items-center justify-between text-xs pt-1">
-                        <span class="text-slate-400">Transition Direction:</span>
-                        <div class="inline-flex rounded-lg p-0.5 bg-slate-900 border border-studio-border">
-                            <button id="dirHorizontal" class="px-2.5 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">Horizontal (L-R)</button>
-                            <button id="dirVertical" class="px-2.5 py-1 rounded text-xs font-medium bg-indigo-600 text-white transition">Vertical (Flip)</button>
+                        <span class="text-slate-600 font-medium">Interlace Direction:</span>
+                        <div class="inline-flex rounded-lg p-0.5 bg-slate-200/80 border border-studio-border">
+                            <button id="dirHorizontal" class="px-2.5 py-1 rounded text-xs font-medium text-slate-600 hover:text-slate-900 transition">Horizontal (Flip)</button>
+                            <button id="dirVertical" class="px-2.5 py-1 rounded text-xs font-semibold bg-white text-indigo-700 shadow-sm transition">Vertical (3D)</button>
                         </div>
                     </div>
 
                     <!-- Animation Speed Slider -->
                     <div id="loopSpeedContainer" class="hidden space-y-1 pt-1">
-                        <div class="flex justify-between text-xs text-slate-400">
+                        <div class="flex justify-between text-xs text-slate-500">
                             <span>Loop Speed</span>
-                            <span id="valSpeed" class="font-mono text-slate-300">1.0x</span>
+                            <span id="valSpeed" class="font-mono text-slate-700 font-medium">1.0x</span>
                         </div>
                         <input type="range" id="sliderSpeed" min="0.2" max="3" step="0.1" value="1.0" class="w-full">
                     </div>
 
-                    <!-- Transition Zone Softness -->
+                    <!-- Transition Softness -->
                     <div class="space-y-1 pt-1">
-                        <div class="flex justify-between text-xs text-slate-400">
-                            <span title="Width of blend interpolation boundary between the two views">Transition Softness</span>
-                            <span id="valTransition" class="font-mono text-slate-300">4%</span>
+                        <div class="flex justify-between text-xs text-slate-500">
+                            <span title="Width of blend boundary between the two views">Transition Softness</span>
+                            <span id="valTransition" class="font-mono text-slate-700 font-medium">4%</span>
                         </div>
                         <input type="range" id="sliderTransition" min="1" max="25" value="4" class="w-full">
                     </div>
 
                     <!-- Virtual Lens Overlay Toggle -->
-                    <div class="pt-2 border-t border-studio-border/60 flex items-center justify-between">
-                        <label for="toggleLens" class="text-xs text-slate-300 flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="toggleLens" checked class="rounded border-studio-border bg-slate-900 text-indigo-600 focus:ring-0">
+                    <div class="pt-2 border-t border-studio-border flex items-center justify-between">
+                        <label for="toggleLens" class="text-xs text-slate-700 font-medium flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="toggleLens" checked class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-0">
                             <span>Virtual Lenticular Sheet</span>
                         </label>
-                        <span class="text-[11px] text-slate-400 font-mono">Micro-Grooves</span>
+                        <span class="text-[11px] text-slate-500 font-mono">Micro-Grooves</span>
                     </div>
                 </div>
 
                 <!-- SECTION 4: Print & Optical Interlacing Engine Settings -->
-                <div class="p-3.5 rounded-xl bg-studio-card border border-studio-border space-y-3.5">
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-studio-border space-y-3.5">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">4. Print Interlacing Specs</span>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-950 text-indigo-400 border border-indigo-800/40">Mathematical Engine</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">4. Print Interlacing Specs</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-100 text-indigo-800 border border-indigo-200 font-semibold">Mathematical</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3 text-xs">
                         <div>
-                            <label class="block text-slate-400 mb-1" title="Printer resolution in dots per inch">Printer DPI</label>
-                            <select id="selectDPI" class="w-full bg-slate-900 border border-studio-border rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-indigo-500">
-                                <option value="300">300 DPI (Draft / Desk)</option>
-                                <option value="600" selected>600 DPI (Commercial Print)</option>
-                                <option value="1200">1200 DPI (Fine Art Ultra)</option>
+                            <label class="block text-slate-600 font-medium mb-1">Printer DPI</label>
+                            <select id="selectDPI" class="w-full bg-white border border-studio-border rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:border-indigo-500 shadow-sm">
+                                <option value="300">300 DPI</option>
+                                <option value="600" selected>600 DPI (Commercial)</option>
+                                <option value="1200">1200 DPI (Fine Art)</option>
                             </select>
                         </div>
                         <div>
-                            <div class="flex justify-between text-slate-400 mb-1">
-                                <label title="Lens density in Lenticules Per Inch">Lens LPI</label>
-                                <span id="valLPI" class="font-mono text-indigo-400 font-semibold">75 LPI</span>
+                            <div class="flex justify-between text-slate-600 font-medium mb-1">
+                                <label>Lens LPI</label>
+                                <span id="valLPI" class="font-mono text-indigo-700 font-bold">75 LPI</span>
                             </div>
                             <input type="range" id="sliderLPI" min="10" max="100" value="75" class="w-full">
                         </div>
                     </div>
 
-                    <!-- Computed Physical Stripe Geometry Card -->
-                    <div class="rounded-lg bg-slate-900/80 border border-studio-border p-2.5 text-xs font-mono space-y-1">
-                        <div class="flex justify-between text-slate-400">
-                            <span>Stripe Formula:</span>
-                            <span class="text-slate-300">DPI / (LPI × 2)</span>
+                    <!-- Computed Stripe Geometry -->
+                    <div class="rounded-lg bg-white border border-studio-border p-2.5 text-xs font-mono space-y-1 shadow-sm">
+                        <div class="flex justify-between text-slate-500">
+                            <span>Formula:</span>
+                            <span class="text-slate-700 font-semibold">DPI / (LPI × 2)</span>
                         </div>
-                        <div class="flex justify-between text-slate-400">
-                            <span>Computed Stripe Width:</span>
-                            <span id="badgeStripeWidth" class="text-emerald-400 font-semibold">4.00 px / view</span>
+                        <div class="flex justify-between text-slate-500">
+                            <span>Stripe Width:</span>
+                            <span id="badgeStripeWidth" class="text-emerald-700 font-bold">4.00 px / view</span>
                         </div>
-                        <div class="flex justify-between text-slate-400">
-                            <span>Lenticule Pitch:</span>
-                            <span id="badgePitchWidth" class="text-slate-300">8.00 px / lens</span>
+                        <div class="flex justify-between text-slate-500">
+                            <span>Lens Pitch:</span>
+                            <span id="badgePitchWidth" class="text-slate-700 font-semibold">8.00 px / lens</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- SECTION 5: High Resolution Render Action -->
-                <div class="pt-1">
-                    <button id="btnGenerate" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-semibold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2 disabled:opacity-40 disabled:pointer-events-none">
+                <div class="pt-1 pb-4 lg:pb-0">
+                    <button id="btnGenerate" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold shadow-md shadow-indigo-600/20 transition flex items-center justify-center space-x-2 disabled:opacity-40 disabled:pointer-events-none">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
                         </svg>
                         <span>Generate Interlaced Image</span>
                     </button>
-                    <p class="text-[11px] text-center text-slate-500 mt-2">Processes at full target resolution using direct memory bit-slicing</p>
                 </div>
 
             </div>
         </aside>
 
-        <!-- RIGHT PANEL: Interactive Simulation & Output Workspace -->
-        <section class="flex-1 flex flex-col bg-slate-950 overflow-hidden relative">
+        <!-- RIGHT PANEL: Workspace Stage -->
+        <section id="previewPanel" class="hidden lg:flex flex-1 flex-col bg-slate-100 overflow-hidden relative">
 
-            <!-- Workspace Top Bar: View Tabs & Zoom Indicator -->
-            <div class="h-11 border-b border-studio-border bg-studio-panel/50 px-5 flex items-center justify-between shrink-0">
+            <!-- Workspace Top Bar -->
+            <div class="h-11 border-b border-studio-border bg-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-sm">
                 <div class="flex items-center space-x-2">
-                    <button id="tabSim" class="px-3 py-1 rounded-md text-xs font-medium bg-slate-800 text-white border border-studio-border transition">Interactive Simulator</button>
-                    <button id="tabOutput" class="px-3 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white border border-transparent transition flex items-center space-x-1.5">
+                    <button id="tabSim" class="px-3 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 transition">Interactive Simulator</button>
+                    <button id="tabOutput" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 border border-transparent transition flex items-center space-x-1.5">
                         <span>Generated Output</span>
-                        <span id="outputReadyBadge" class="hidden w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span id="outputReadyBadge" class="hidden w-2 h-2 rounded-full bg-emerald-500"></span>
                     </button>
                 </div>
 
-                <div class="flex items-center space-x-4 text-xs font-mono text-slate-400">
+                <div class="flex items-center space-x-3 text-xs font-mono text-slate-500">
                     <span id="canvasDimBadge">0 × 0 px</span>
-                    <span class="w-px h-3.5 bg-studio-border"></span>
-                    <span id="activeViewIndicator">Anchor View A</span>
+                    <span class="w-px h-3.5 bg-slate-300"></span>
+                    <span id="activeViewIndicator" class="font-medium text-slate-700">Anchor View A</span>
                 </div>
             </div>
 
-            <!-- Workspace Body: Stage Container -->
-            <div class="flex-1 relative flex items-center justify-center p-6 overflow-hidden" id="stageContainer">
+            <!-- Workspace Stage Container -->
+            <div class="flex-1 relative flex items-center justify-center p-3 sm:p-6 overflow-hidden" id="stageContainer">
 
-                <!-- EMPTY STATE (Before upload) -->
-                <div id="emptyState" class="flex flex-col items-center justify-center text-center max-w-sm p-6 rounded-2xl border border-dashed border-studio-border bg-studio-card/40">
-                    <div class="w-16 h-16 rounded-2xl bg-indigo-950/60 border border-indigo-800/40 text-indigo-400 flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- EMPTY STATE -->
+                <div id="emptyState" class="flex flex-col items-center justify-center text-center max-w-sm p-6 sm:p-8 rounded-2xl border-2 border-dashed border-studio-border bg-white shadow-sm">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mb-3">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
-                    <h2 class="text-base font-semibold text-slate-200">Load Images to Begin</h2>
-                    <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Upload View A and View B in the sidebar. Lenticular Studio will normalize geometry, simulate 3D/flip lenses, and produce print-ready interlacing.</p>
+                    <h2 class="text-sm sm:text-base font-bold text-slate-800">Load Images to Begin</h2>
+                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Upload View A and View B in the controls panel. Move your mouse or swipe across the canvas to simulate physical lenticular transitions.</p>
                 </div>
 
                 <!-- SIMULATOR VIEWPORT -->
-                <div id="simulatorWrapper" class="hidden relative max-w-full max-h-full rounded-xl shadow-2xl overflow-hidden border border-studio-border bg-black cursor-crosshair">
-                    <canvas id="simCanvas" class="block max-w-full max-h-full object-contain pointer-events-none"></canvas>
+                <div id="simulatorWrapper" class="hidden relative max-w-full max-h-full rounded-xl shadow-lg border border-slate-300 bg-slate-900 overflow-hidden cursor-ew-resize flex items-center justify-center">
+                    <canvas id="simCanvas" class="block max-w-full max-h-[calc(100vh-210px)] object-contain pointer-events-none"></canvas>
                     
                     <!-- Virtual Lens Grooves Overlay -->
                     <div id="lensOverlay" class="absolute inset-0 pointer-events-none transition-opacity duration-200 lens-overlay-vertical"></div>
 
                     <!-- Optical Angle Visualizer Bar -->
-                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-studio-border flex items-center space-x-3 text-[11px] font-mono pointer-events-none">
-                        <span class="text-indigo-400 font-medium">A</span>
-                        <div class="w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden relative">
-                            <div id="viewTrackerBar" class="h-full bg-indigo-500 transition-all duration-75" style="width: 50%;"></div>
+                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 shadow-md flex items-center space-x-3 text-[11px] font-mono pointer-events-none">
+                        <span class="text-indigo-600 font-bold">A</span>
+                        <div class="w-24 sm:w-32 h-1.5 bg-slate-200 rounded-full overflow-hidden relative">
+                            <div id="viewTrackerBar" class="h-full bg-indigo-600 transition-all duration-75" style="width: 50%;"></div>
                         </div>
-                        <span class="text-indigo-400 font-medium">B</span>
-                        <span id="trackerPercent" class="text-slate-400 w-8 text-right">50%</span>
+                        <span class="text-indigo-600 font-bold">B</span>
+                        <span id="trackerPercent" class="text-slate-600 font-semibold w-8 text-right">50%</span>
                     </div>
                 </div>
 
-                <!-- GENERATED OUTPUT VIEWPORT (Shown when output tab active) -->
+                <!-- GENERATED OUTPUT VIEWPORT -->
                 <div id="outputWrapper" class="hidden relative max-w-full max-h-full flex flex-col items-center justify-center">
-                    <div class="relative rounded-xl shadow-2xl overflow-hidden border border-studio-border bg-black max-w-full max-h-full flex items-center justify-center">
-                        <canvas id="interlacedOutputCanvas" class="block max-w-full max-h-[calc(100vh-220px)] object-contain"></canvas>
+                    <div class="relative rounded-xl shadow-lg overflow-hidden border border-slate-300 bg-white max-w-full max-h-full flex items-center justify-center">
+                        <canvas id="interlacedOutputCanvas" class="block max-w-full max-h-[calc(100vh-230px)] object-contain"></canvas>
                     </div>
 
                     <!-- Export Toolbar Floating Below Canvas -->
-                    <div class="mt-4 px-5 py-2.5 rounded-xl bg-studio-panel border border-studio-border shadow-xl flex items-center space-x-5">
+                    <div class="mt-3 px-4 sm:px-6 py-2 rounded-xl bg-white border border-studio-border shadow-md flex items-center space-x-4">
                         <div class="text-xs space-y-0.5">
-                            <div class="font-semibold text-slate-200" id="outStatsResolution">Resolution: 0 × 0 px</div>
-                            <div class="text-[11px] font-mono text-slate-400" id="outStatsSpecs">600 DPI • 75 LPI • Stripe: 4.00px</div>
+                            <div class="font-bold text-slate-800" id="outStatsResolution">Resolution: 0 × 0 px</div>
+                            <div class="text-[11px] font-mono text-slate-500" id="outStatsSpecs">600 DPI • 75 LPI</div>
                         </div>
-                        <div class="w-px h-6 bg-studio-border"></div>
-                        <button id="btnDownload" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-medium text-xs transition flex items-center space-x-2 shadow-lg shadow-emerald-900/30">
+                        <div class="w-px h-6 bg-slate-200"></div>
+                        <button id="btnDownload" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs transition flex items-center space-x-1.5 shadow-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            <span>Download Lossless PNG</span>
+                            <span>Download PNG</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- PROGRESS & GENERATION OVERLAY -->
-                <div id="renderOverlay" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center z-50">
-                    <div class="w-80 p-6 rounded-2xl bg-studio-panel border border-studio-border shadow-2xl text-center space-y-4">
+                <div id="renderOverlay" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center z-50 p-4">
+                    <div class="w-full max-w-xs p-6 rounded-2xl bg-white border border-slate-200 shadow-2xl text-center space-y-4">
                         <div class="flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center animate-spin">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center animate-spin">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                 </svg>
                             </div>
                         </div>
                         <div>
-                            <h3 class="text-sm font-semibold text-slate-100" id="renderProgressTitle">Interlacing Images...</h3>
-                            <p class="text-xs text-slate-400 mt-1" id="renderProgressSubtitle">Executing optical pixel calculations</p>
+                            <h3 class="text-sm font-bold text-slate-800" id="renderProgressTitle">Interlacing Images...</h3>
+                            <p class="text-xs text-slate-500 mt-1" id="renderProgressSubtitle">Executing optical pixel calculations</p>
                         </div>
-                        <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-studio-border">
-                            <div id="renderProgressBar" class="h-full bg-indigo-500 transition-all duration-100" style="width: 0%;"></div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+                            <div id="renderProgressBar" class="h-full bg-indigo-600 transition-all duration-100" style="width: 0%;"></div>
                         </div>
-                        <div class="text-[11px] font-mono text-slate-400" id="renderProgressPercent">0%</div>
+                        <div class="text-[11px] font-mono text-slate-600 font-bold" id="renderProgressPercent">0%</div>
                     </div>
                 </div>
 
@@ -464,93 +475,69 @@
         </section>
     </main>
 
-    <!-- DOCUMENTATION & GUIDE MODAL -->
-    <div id="helpModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="w-full max-w-xl rounded-2xl bg-studio-panel border border-studio-border shadow-2xl overflow-hidden">
-            <div class="p-5 border-b border-studio-border flex items-center justify-between">
+    <!-- DOCUMENTATION MODAL -->
+    <div id="helpModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="w-full max-w-lg rounded-2xl bg-white border border-studio-border shadow-2xl overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-studio-border flex items-center justify-between">
                 <div class="flex items-center space-x-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
-                    <h3 class="font-semibold text-slate-100">Lenticular Studio Reference & Guide</h3>
+                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+                    <h3 class="font-bold text-slate-900 text-sm">Lenticular Studio Guide</h3>
                 </div>
-                <button id="btnCloseHelp" class="p-1 rounded-lg hover:bg-studio-hover text-slate-400 hover:text-white">
+                <button id="btnCloseHelp" class="p-1 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div class="p-6 space-y-4 text-xs text-slate-300 leading-relaxed overflow-y-auto max-h-[70vh]">
+            <div class="p-5 space-y-3.5 text-xs text-slate-600 leading-relaxed overflow-y-auto max-h-[70vh]">
                 <div>
-                    <h4 class="font-semibold text-white uppercase tracking-wider text-[11px] text-indigo-400 mb-1">Optical Interlacing Formula</h4>
-                    <p>Lenticular prints work by slicing multiple images into fine microscopic strips positioned under cylindrical lenticules. The formula for the individual stripe width is:</p>
-                    <div class="p-2.5 mt-1.5 rounded-lg bg-slate-900 font-mono text-emerald-400 border border-studio-border">
-                        Stripe Width (pixels) = Printer DPI / (Lens LPI × 2 views)
+                    <h4 class="font-bold text-indigo-700 uppercase tracking-wider text-[11px] mb-1">Optical Interlacing Formula</h4>
+                    <p>Lenticular prints slice multiple images into microscopic strips under cylindrical lenses. The stripe width calculation:</p>
+                    <div class="p-2.5 mt-1.5 rounded-lg bg-slate-100 font-mono text-indigo-900 font-semibold border border-slate-200">
+                        Stripe Width (px) = Printer DPI / (Lens LPI × 2 views)
                     </div>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-white uppercase tracking-wider text-[11px] text-indigo-400 mb-1">Standard Workflow</h4>
-                    <ol class="list-decimal list-inside space-y-1 text-slate-400">
-                        <li><strong class="text-slate-200">Upload View A and View B:</strong> Image A defines the master output aspect ratio.</li>
-                        <li><strong class="text-slate-200">Adjust Normalization:</strong> Select Cover, Contain, or Stretch and fine-tune offset/scale.</li>
-                        <li><strong class="text-slate-200">Interactive Simulation:</strong> Move your mouse across the canvas or enable Auto-Loop to verify alignment and seamless switching.</li>
-                        <li><strong class="text-slate-200">Set DPI & LPI:</strong> Match your printer driver hardware resolution (e.g. 600 or 1200 DPI) and physical sheet rating (e.g. 75 LPI).</li>
-                        <li><strong class="text-slate-200">Render & Download:</strong> Generate the lossless, uncompressed PNG file ready for lamination.</li>
+                    <h4 class="font-bold text-indigo-700 uppercase tracking-wider text-[11px] mb-1">Standard Workflow</h4>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-600">
+                        <li><strong class="text-slate-800">Upload Images:</strong> Image A defines the master canvas dimensions.</li>
+                        <li><strong class="text-slate-800">Alignment:</strong> Choose Cover/Contain and adjust offset/scale for View B.</li>
+                        <li><strong class="text-slate-800">Preview:</strong> Drag or swipe across the simulator to check the optical transition.</li>
+                        <li><strong class="text-slate-800">Render:</strong> Set DPI and LPI, then click "Generate Interlaced Image".</li>
                     </ol>
                 </div>
-                <div>
-                    <h4 class="font-semibold text-white uppercase tracking-wider text-[11px] text-indigo-400 mb-1">Direction Guidelines</h4>
-                    <p><strong class="text-slate-200">Vertical Lenticules (Left-Right):</strong> Recommended for 3D stereoscopic depth. The viewer's eyes receive different views simultaneously.</p>
-                    <p class="mt-1"><strong class="text-slate-200">Horizontal Lenticules (Top-Bottom):</strong> Recommended for 2-image flip/morph graphics viewed when tilted by hand.</p>
-                </div>
             </div>
-            <div class="p-4 border-t border-studio-border bg-slate-900/50 flex justify-end">
-                <button id="btnCloseHelpFooter" class="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs">Got it</button>
+            <div class="p-3.5 border-t border-studio-border bg-slate-50 flex justify-end">
+                <button id="btnCloseHelpFooter" class="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs">Got it</button>
             </div>
         </div>
     </div>
 
     <!-- JAVASCRIPT APPLICATION CORE -->
     <script>
-        /**
-         * Lenticular Studio Core
-         * Architecture: State Machine -> Reactive Canvas Pipeline -> Non-blocking Interlacing Engine
-         */
         (() => {
             'use strict';
 
-            // Central Application State
             const state = {
-                imageA: null, // { img, file, name, width, height, format, size, url }
-                imageB: null, // { img, file, name, width, height, format, size, url }
-                fitMode: 'cover', // 'cover' | 'contain' | 'stretch'
-                alignment: {
-                    offsetX: 0,
-                    offsetY: 0,
-                    scale: 1.0,
-                    rotation: 0
-                },
+                imageA: null,
+                imageB: null,
+                fitMode: 'cover',
+                alignment: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 },
                 simulation: {
-                    mode: 'pointer', // 'pointer' | 'loop'
-                    direction: 'vertical', // 'vertical' (flip) | 'horizontal' (3D side)
-                    position: 0.5, // 0.0 (A) -> 1.0 (B)
+                    mode: 'pointer',
+                    direction: 'vertical',
+                    position: 0.5,
                     speed: 1.0,
                     transitionSoftness: 0.04,
                     showLens: true,
                     loopDirection: 1,
                     animFrameId: null
                 },
-                print: {
-                    dpi: 600,
-                    lpi: 75
-                },
-                render: {
-                    isRendering: false,
-                    generatedBlob: null,
-                    generatedCanvas: null
-                },
-                activeTab: 'sim' // 'sim' | 'output'
+                print: { dpi: 600, lpi: 75 },
+                render: { isRendering: false, generatedBlob: null, generatedCanvas: null },
+                activeTab: 'sim',
+                mobileTab: 'controls' // 'controls' | 'preview'
             };
 
-            // DOM Elements Cache
             const dom = {
-                // Dropzones & Inputs
                 dropzoneA: document.getElementById('dropzoneA'),
                 dropzoneB: document.getElementById('dropzoneB'),
                 fileInputA: document.getElementById('fileInputA'),
@@ -573,7 +560,6 @@
                 btnRemoveB: document.getElementById('btnRemoveB'),
                 btnSwapImages: document.getElementById('btnSwapImages'),
 
-                // Alignment controls
                 fitBtns: document.querySelectorAll('.fit-btn'),
                 btnAutoAlign: document.getElementById('btnAutoAlign'),
                 sliderOffsetX: document.getElementById('sliderOffsetX'),
@@ -585,7 +571,6 @@
                 valScale: document.getElementById('valScale'),
                 valRotation: document.getElementById('valRotation'),
 
-                // Simulation controls
                 modePointer: document.getElementById('modePointer'),
                 modeLoop: document.getElementById('modeLoop'),
                 dirHorizontal: document.getElementById('dirHorizontal'),
@@ -597,14 +582,12 @@
                 valTransition: document.getElementById('valTransition'),
                 toggleLens: document.getElementById('toggleLens'),
 
-                // Print settings
                 selectDPI: document.getElementById('selectDPI'),
                 sliderLPI: document.getElementById('sliderLPI'),
                 valLPI: document.getElementById('valLPI'),
                 badgeStripeWidth: document.getElementById('badgeStripeWidth'),
                 badgePitchWidth: document.getElementById('badgePitchWidth'),
 
-                // Actions & Status
                 btnGenerate: document.getElementById('btnGenerate'),
                 btnResetStudio: document.getElementById('btnResetStudio'),
                 statusBadge: document.getElementById('statusBadge'),
@@ -613,7 +596,6 @@
                 canvasDimBadge: document.getElementById('canvasDimBadge'),
                 activeViewIndicator: document.getElementById('activeViewIndicator'),
 
-                // Workspace
                 stageContainer: document.getElementById('stageContainer'),
                 emptyState: document.getElementById('emptyState'),
                 simulatorWrapper: document.getElementById('simulatorWrapper'),
@@ -622,7 +604,6 @@
                 viewTrackerBar: document.getElementById('viewTrackerBar'),
                 trackerPercent: document.getElementById('trackerPercent'),
 
-                // Output Viewport
                 tabSim: document.getElementById('tabSim'),
                 tabOutput: document.getElementById('tabOutput'),
                 outputReadyBadge: document.getElementById('outputReadyBadge'),
@@ -632,35 +613,55 @@
                 outStatsSpecs: document.getElementById('outStatsSpecs'),
                 btnDownload: document.getElementById('btnDownload'),
 
-                // Progress Overlay
                 renderOverlay: document.getElementById('renderOverlay'),
                 renderProgressBar: document.getElementById('renderProgressBar'),
                 renderProgressPercent: document.getElementById('renderProgressPercent'),
 
-                // Help Modal
                 btnOpenHelp: document.getElementById('btnOpenHelp'),
                 btnCloseHelp: document.getElementById('btnCloseHelp'),
                 btnCloseHelpFooter: document.getElementById('btnCloseHelpFooter'),
-                helpModal: document.getElementById('helpModal')
+                helpModal: document.getElementById('helpModal'),
+
+                // Mobile Navigation
+                controlsPanel: document.getElementById('controlsPanel'),
+                previewPanel: document.getElementById('previewPanel'),
+                mobileTabControls: document.getElementById('mobileTabControls'),
+                mobileTabPreview: document.getElementById('mobileTabPreview')
             };
 
             const simCtx = dom.simCanvas.getContext('2d', { alpha: false });
             const MAX_FILE_SIZE_MB = 45;
 
-            /**
-             * Initialize event listeners and baseline UI state
-             */
             function init() {
                 setupFileDropzones();
                 setupControls();
+                setupMobileNav();
                 setupHelpModal();
                 updateCalculations();
                 renderSimulator();
             }
 
-            /**
-             * Format raw byte count into human readable file size
-             */
+            function setupMobileNav() {
+                dom.mobileTabControls.addEventListener('click', () => switchMobileView('controls'));
+                dom.mobileTabPreview.addEventListener('click', () => switchMobileView('preview'));
+            }
+
+            function switchMobileView(target) {
+                state.mobileTab = target;
+                if (target === 'controls') {
+                    dom.controlsPanel.classList.remove('hidden');
+                    dom.previewPanel.classList.add('hidden');
+                    dom.mobileTabControls.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition';
+                    dom.mobileTabPreview.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition';
+                } else {
+                    dom.controlsPanel.classList.add('hidden');
+                    dom.previewPanel.classList.remove('hidden');
+                    dom.previewPanel.classList.add('flex');
+                    dom.mobileTabPreview.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition';
+                    dom.mobileTabControls.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition';
+                }
+            }
+
             function formatBytes(bytes) {
                 if (bytes === 0) return '0 B';
                 const k = 1024;
@@ -669,16 +670,13 @@
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
             }
 
-            /**
-             * Configure drag-and-drop & native file chooser listeners
-             */
             function setupFileDropzones() {
                 const configureZone = (zone, input, slot) => {
                     ['dragenter', 'dragover'].forEach(name => {
                         zone.addEventListener(name, (e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            zone.classList.add('border-indigo-500', 'bg-indigo-950/20');
+                            zone.classList.add('border-indigo-500', 'bg-indigo-50');
                         });
                     });
 
@@ -686,7 +684,7 @@
                         zone.addEventListener(name, (e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            zone.classList.remove('border-indigo-500', 'bg-indigo-950/20');
+                            zone.classList.remove('border-indigo-500', 'bg-indigo-50');
                         });
                     });
 
@@ -718,18 +716,15 @@
                 dom.btnSwapImages.addEventListener('click', swapImages);
             }
 
-            /**
-             * Safely decode and validate user image files
-             */
             function handleImageFile(file, slot) {
                 const validTypes = ['image/png', 'image/jpeg', 'image/webp'];
                 if (!validTypes.includes(file.type)) {
-                    alert('Invalid file format. Please upload a PNG, JPG, or WEBP image.');
+                    alert('Please upload a PNG, JPG, or WEBP image.');
                     return;
                 }
 
                 if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-                    alert(`The selected file exceeds the safe limit of ${MAX_FILE_SIZE_MB}MB.`);
+                    alert(`The file exceeds ${MAX_FILE_SIZE_MB}MB.`);
                     return;
                 }
 
@@ -737,12 +732,7 @@
                 const img = new Image();
 
                 img.onload = () => {
-                    // Cleanup previous object url if existed
-                    if (state[slot] && state[slot].url) {
-                        URL.revokeObjectURL(state[slot].url);
-                    }
-
-                    const format = file.type.split('/')[1].toUpperCase();
+                    if (state[slot] && state[slot].url) URL.revokeObjectURL(state[slot].url);
 
                     state[slot] = {
                         img,
@@ -750,26 +740,28 @@
                         name: file.name,
                         width: img.naturalWidth,
                         height: img.naturalHeight,
-                        format,
+                        format: file.type.split('/')[1].toUpperCase(),
                         size: file.size,
                         url
                     };
 
                     updateDropzoneUI(slot);
                     onImagesUpdated();
+
+                    // If both images loaded on mobile, switch to preview automatically
+                    if (state.imageA && state.imageB && window.innerWidth < 1024) {
+                        switchMobileView('preview');
+                    }
                 };
 
                 img.onerror = () => {
                     URL.revokeObjectURL(url);
-                    alert('Failed to decode image. The file may be corrupt.');
+                    alert('Failed to decode image.');
                 };
 
                 img.src = url;
             }
 
-            /**
-             * Update the visual slot UI when an image is loaded or changed
-             */
             function updateDropzoneUI(slot) {
                 const isA = (slot === 'imageA');
                 const data = state[slot];
@@ -796,21 +788,13 @@
                 dom.btnSwapImages.disabled = !(state.imageA && state.imageB);
             }
 
-            /**
-             * Cleanly remove an image slot and release memory
-             */
             function removeImage(slot) {
-                if (state[slot] && state[slot].url) {
-                    URL.revokeObjectURL(state[slot].url);
-                }
+                if (state[slot] && state[slot].url) URL.revokeObjectURL(state[slot].url);
                 state[slot] = null;
                 updateDropzoneUI(slot);
                 onImagesUpdated();
             }
 
-            /**
-             * Swap View A and View B
-             */
             function swapImages() {
                 if (!state.imageA || !state.imageB) return;
                 const temp = state.imageA;
@@ -821,9 +805,6 @@
                 onImagesUpdated();
             }
 
-            /**
-             * Pipeline handler triggered when images are loaded, swapped, or removed
-             */
             function onImagesUpdated() {
                 const bothLoaded = !!(state.imageA && state.imageB);
 
@@ -837,10 +818,9 @@
                     dom.emptyState.classList.add('hidden');
                     dom.simulatorWrapper.classList.remove('hidden');
                     dom.btnGenerate.disabled = false;
-                    dom.statusDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-                    dom.statusText.textContent = 'Ready to Simulate & Interlace';
+                    dom.statusDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+                    dom.statusText.textContent = 'Ready to Interlace';
 
-                    // Align canvas internal buffer with Image A master aspect
                     dom.simCanvas.width = state.imageA.width;
                     dom.simCanvas.height = state.imageA.height;
 
@@ -850,29 +830,24 @@
                     dom.emptyState.classList.remove('hidden');
                     dom.simulatorWrapper.classList.add('hidden');
                     dom.btnGenerate.disabled = true;
-                    dom.statusDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+                    dom.statusDot.className = 'w-2 h-2 rounded-full bg-amber-500';
                     dom.statusText.textContent = state.imageA ? 'Waiting for View B' : 'Waiting for Images';
                     stopAnimation();
                 }
             }
 
-            /**
-             * Setup all UI control interactions
-             */
             function setupControls() {
-                // Fitting mode buttons
                 dom.fitBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
                         dom.fitBtns.forEach(b => {
-                            b.className = 'fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-slate-900 text-slate-400 hover:border-slate-700 transition';
+                            b.className = 'fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 hover:border-slate-300 transition';
                         });
-                        btn.className = 'fit-btn py-1.5 text-xs rounded-lg font-medium border border-indigo-600 bg-indigo-600/20 text-indigo-300 transition';
+                        btn.className = 'fit-btn py-1.5 text-xs rounded-lg font-medium border border-indigo-600 bg-indigo-50 text-indigo-700 transition';
                         state.fitMode = btn.dataset.fit;
                         renderSimulator();
                     });
                 });
 
-                // Auto-center alignment
                 dom.btnAutoAlign.addEventListener('click', () => {
                     state.alignment = { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 };
                     dom.sliderOffsetX.value = 0;
@@ -886,7 +861,6 @@
                     renderSimulator();
                 });
 
-                // Alignment slider listeners
                 dom.sliderOffsetX.addEventListener('input', (e) => {
                     state.alignment.offsetX = parseFloat(e.target.value);
                     dom.valOffsetX.textContent = `${state.alignment.offsetX}px`;
@@ -911,44 +885,27 @@
                     renderSimulator();
                 });
 
-                // Simulation mode toggling
-                dom.modePointer.addEventListener('click', () => {
-                    setSimMode('pointer');
-                });
+                dom.modePointer.addEventListener('click', () => setSimMode('pointer'));
+                dom.modeLoop.addEventListener('click', () => setSimMode('loop'));
+                dom.dirHorizontal.addEventListener('click', () => setDirection('horizontal'));
+                dom.dirVertical.addEventListener('click', () => setDirection('vertical'));
 
-                dom.modeLoop.addEventListener('click', () => {
-                    setSimMode('loop');
-                });
-
-                // Direction selection
-                dom.dirHorizontal.addEventListener('click', () => {
-                    setDirection('horizontal');
-                });
-
-                dom.dirVertical.addEventListener('click', () => {
-                    setDirection('vertical');
-                });
-
-                // Animation speed
                 dom.sliderSpeed.addEventListener('input', (e) => {
                     state.simulation.speed = parseFloat(e.target.value);
                     dom.valSpeed.textContent = `${state.simulation.speed.toFixed(1)}x`;
                 });
 
-                // Transition softness
                 dom.sliderTransition.addEventListener('input', (e) => {
                     state.simulation.transitionSoftness = parseInt(e.target.value, 10) / 100;
                     dom.valTransition.textContent = `${e.target.value}%`;
                     renderSimulator();
                 });
 
-                // Virtual lens sheet toggle
                 dom.toggleLens.addEventListener('change', (e) => {
                     state.simulation.showLens = e.target.checked;
                     dom.lensOverlay.style.display = state.simulation.showLens ? 'block' : 'none';
                 });
 
-                // Print settings
                 dom.selectDPI.addEventListener('change', (e) => {
                     state.print.dpi = parseInt(e.target.value, 10);
                     updateCalculations();
@@ -961,99 +918,76 @@
                     updateLensOverlay();
                 });
 
-                // Pointer tracking on interactive viewport
+                // Desktop Mouse Tracking
                 dom.simulatorWrapper.addEventListener('mousemove', handlePointerTracking);
-                dom.simulatorWrapper.addEventListener('touchmove', (e) => {
+
+                // Android & Mobile Touch Tracking with non-blocking event handling
+                const handleTouch = (e) => {
                     if (e.touches && e.touches[0]) {
+                        e.preventDefault();
                         handlePointerTracking(e.touches[0]);
                     }
-                }, { passive: true });
+                };
+                dom.simulatorWrapper.addEventListener('touchstart', handleTouch, { passive: false });
+                dom.simulatorWrapper.addEventListener('touchmove', handleTouch, { passive: false });
 
-                // Render execution
                 dom.btnGenerate.addEventListener('click', executeInterlacedRender);
-
-                // Download result
                 dom.btnDownload.addEventListener('click', downloadInterlacedPNG);
-
-                // Tab navigation
                 dom.tabSim.addEventListener('click', () => switchTab('sim'));
                 dom.tabOutput.addEventListener('click', () => switchTab('output'));
-
-                // Reset studio
                 dom.btnResetStudio.addEventListener('click', resetStudio);
             }
 
-            /**
-             * Switch simulation mode (Pointer tracking vs Ping-pong Auto-loop)
-             */
             function setSimMode(mode) {
                 state.simulation.mode = mode;
                 if (mode === 'pointer') {
-                    dom.modePointer.className = 'sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-600/20 text-indigo-300 font-medium transition';
-                    dom.modeLoop.className = 'sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-slate-900 text-slate-400 hover:border-slate-700 transition';
+                    dom.modePointer.className = 'sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition';
+                    dom.modeLoop.className = 'sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 hover:border-slate-300 font-medium transition';
                     dom.loopSpeedContainer.classList.add('hidden');
                     stopAnimation();
                 } else {
-                    dom.modeLoop.className = 'sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-600/20 text-indigo-300 font-medium transition';
-                    dom.modePointer.className = 'sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-slate-900 text-slate-400 hover:border-slate-700 transition';
+                    dom.modeLoop.className = 'sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition';
+                    dom.modePointer.className = 'sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 hover:border-slate-300 font-medium transition';
                     dom.loopSpeedContainer.classList.remove('hidden');
                     startAnimation();
                 }
             }
 
-            /**
-             * Set interlacing and simulation direction (Vertical vs Horizontal)
-             */
             function setDirection(dir) {
                 state.simulation.direction = dir;
                 if (dir === 'vertical') {
-                    dom.dirVertical.className = 'px-2.5 py-1 rounded text-xs font-medium bg-indigo-600 text-white transition';
-                    dom.dirHorizontal.className = 'px-2.5 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
+                    dom.dirVertical.className = 'px-2.5 py-1 rounded text-xs font-semibold bg-white text-indigo-700 shadow-sm transition';
+                    dom.dirHorizontal.className = 'px-2.5 py-1 rounded text-xs font-medium text-slate-600 hover:text-slate-900 transition';
                     dom.lensOverlay.className = 'absolute inset-0 pointer-events-none transition-opacity duration-200 lens-overlay-vertical';
                 } else {
-                    dom.dirHorizontal.className = 'px-2.5 py-1 rounded text-xs font-medium bg-indigo-600 text-white transition';
-                    dom.dirVertical.className = 'px-2.5 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
+                    dom.dirHorizontal.className = 'px-2.5 py-1 rounded text-xs font-semibold bg-white text-indigo-700 shadow-sm transition';
+                    dom.dirVertical.className = 'px-2.5 py-1 rounded text-xs font-medium text-slate-600 hover:text-slate-900 transition';
                     dom.lensOverlay.className = 'absolute inset-0 pointer-events-none transition-opacity duration-200 lens-overlay-horizontal';
                 }
                 updateLensOverlay();
                 renderSimulator();
             }
 
-            /**
-             * Calculate stripe and lenticule physical dimensions based on optical laws
-             */
             function updateCalculations() {
-                const dpi = state.print.dpi;
-                const lpi = state.print.lpi;
-
-                // Optical Formula: Stripe Width = DPI / (LPI * 2 views)
-                const stripeWidth = dpi / (lpi * 2);
-                const pitchWidth = dpi / lpi;
-
+                const stripeWidth = state.print.dpi / (state.print.lpi * 2);
+                const pitchWidth = state.print.dpi / state.print.lpi;
                 dom.badgeStripeWidth.textContent = `${stripeWidth.toFixed(2)} px / view`;
                 dom.badgePitchWidth.textContent = `${pitchWidth.toFixed(2)} px / lens`;
             }
 
-            /**
-             * Update the visual frequency of the virtual lenticular sheet overlay
-             */
             function updateLensOverlay() {
-                // Pitch in preview viewport space mapped proportionally from LPI
-                // Higher LPI = denser groove pattern
-                const visualPitch = Math.max(3, Math.min(18, Math.round(180 / state.print.lpi * 2.5)));
+                const visualPitch = Math.max(3, Math.min(16, Math.round(200 / state.print.lpi * 2.2)));
                 dom.lensOverlay.style.setProperty('--lens-pitch', `${visualPitch}px`);
             }
 
-            /**
-             * Interactive pointer tracking over the canvas
-             */
             function handlePointerTracking(e) {
                 if (state.simulation.mode !== 'pointer' || !state.imageA || !state.imageB) return;
 
                 const rect = dom.simulatorWrapper.getBoundingClientRect();
                 let ratio = 0.5;
 
-                if (state.simulation.direction === 'horizontal') {
+                // Vertical Lenticules track Left-to-Right tilt; Horizontal Lenticules track Top-to-Bottom tilt
+                if (state.simulation.direction === 'vertical') {
                     ratio = (e.clientX - rect.left) / rect.width;
                 } else {
                     ratio = (e.clientY - rect.top) / rect.height;
@@ -1064,9 +998,6 @@
                 renderSimulator();
             }
 
-            /**
-             * Animation loop for Auto-Loop mode using requestAnimationFrame
-             */
             let lastTimestamp = 0;
             function startAnimation() {
                 stopAnimation();
@@ -1076,8 +1007,7 @@
                     const dt = (ts - lastTimestamp) / 1000;
                     lastTimestamp = ts;
 
-                    const delta = dt * 0.75 * state.simulation.speed * state.simulation.loopDirection;
-                    state.simulation.position += delta;
+                    state.simulation.position += dt * 0.75 * state.simulation.speed * state.simulation.loopDirection;
 
                     if (state.simulation.position >= 1.0) {
                         state.simulation.position = 1.0;
@@ -1089,7 +1019,6 @@
 
                     updateTrackerUI();
                     renderSimulator();
-
                     state.simulation.animFrameId = requestAnimationFrame(loop);
                 }
 
@@ -1103,28 +1032,16 @@
                 }
             }
 
-            /**
-             * Update the position cursor on the tracker UI
-             */
             function updateTrackerUI() {
-                const pos = state.simulation.position;
-                const percent = Math.round(pos * 100);
+                const percent = Math.round(state.simulation.position * 100);
                 dom.viewTrackerBar.style.width = `${percent}%`;
                 dom.trackerPercent.textContent = `${percent}%`;
 
-                if (percent < 45) {
-                    dom.activeViewIndicator.textContent = 'View A (Anchor)';
-                } else if (percent > 55) {
-                    dom.activeViewIndicator.textContent = 'View B';
-                } else {
-                    dom.activeViewIndicator.textContent = 'Optical Transition Zone';
-                }
+                if (percent < 45) dom.activeViewIndicator.textContent = 'View A (Anchor)';
+                else if (percent > 55) dom.activeViewIndicator.textContent = 'View B';
+                else dom.activeViewIndicator.textContent = 'Transition Zone';
             }
 
-            /**
-             * Fast interactive simulator rendering
-             * Blends normalized images with smooth interpolation through the transition zone
-             */
             function renderSimulator() {
                 if (!state.imageA || !state.imageB) return;
 
@@ -1132,57 +1049,36 @@
                 const targetH = state.imageA.height;
 
                 simCtx.clearRect(0, 0, targetW, targetH);
-
-                // Draw Base Anchor (View A)
                 simCtx.globalAlpha = 1.0;
                 simCtx.drawImage(state.imageA.img, 0, 0, targetW, targetH);
 
-                // Compute Transition Blend Ratio
                 const pos = state.simulation.position;
                 const halfSoftness = state.simulation.transitionSoftness / 2;
                 const startT = 0.5 - halfSoftness;
                 const endT = 0.5 + halfSoftness;
 
                 let alphaB = 0;
-                if (pos <= startT) {
-                    alphaB = 0;
-                } else if (pos >= endT) {
-                    alphaB = 1;
-                } else {
-                    alphaB = (pos - startT) / (endT - startT);
-                }
+                if (pos <= startT) alphaB = 0;
+                else if (pos >= endT) alphaB = 1;
+                else alphaB = (pos - startT) / (endT - startT);
 
                 if (alphaB > 0) {
                     simCtx.save();
                     simCtx.globalAlpha = alphaB;
-
-                    // Apply Fit and Alignment Transforms to View B
                     drawTransformedImage(simCtx, state.imageB.img, targetW, targetH, state.fitMode, state.alignment);
-
                     simCtx.restore();
                 }
             }
 
-            /**
-             * Draw an image with fit normalization (cover, contain, stretch) and geometric transforms
-             */
             function drawTransformedImage(ctx, img, targetW, targetH, fitMode, alignment) {
                 const srcW = img.naturalWidth;
                 const srcH = img.naturalHeight;
 
                 ctx.save();
-
-                // Translate to user alignment offset
                 ctx.translate(alignment.offsetX, alignment.offsetY);
-
-                // Translate to center for rotation & scaling
                 ctx.translate(targetW / 2, targetH / 2);
-                if (alignment.rotation !== 0) {
-                    ctx.rotate((alignment.rotation * Math.PI) / 180);
-                }
-                if (alignment.scale !== 1.0) {
-                    ctx.scale(alignment.scale, alignment.scale);
-                }
+                if (alignment.rotation !== 0) ctx.rotate((alignment.rotation * Math.PI) / 180);
+                if (alignment.scale !== 1.0) ctx.scale(alignment.scale, alignment.scale);
 
                 let drawW = targetW;
                 let drawH = targetH;
@@ -1197,21 +1093,17 @@
 
                     if (fitMode === 'cover') {
                         if (srcAspect > targetAspect) {
-                            // Source is wider: crop sides
                             drawH = targetH;
                             drawW = targetH * srcAspect;
                         } else {
-                            // Source is taller: crop top/bottom
                             drawW = targetW;
                             drawH = targetW / srcAspect;
                         }
                     } else if (fitMode === 'contain') {
                         if (srcAspect > targetAspect) {
-                            // Source is wider
                             drawW = targetW;
                             drawH = targetW / srcAspect;
                         } else {
-                            // Source is taller
                             drawH = targetH;
                             drawW = targetH * srcAspect;
                         }
@@ -1225,17 +1117,11 @@
                 ctx.restore();
             }
 
-            /**
-             * Mathematical High-Resolution Optical Interlacing Engine
-             * Processes scanlines/columns deterministically without cumulative floating-point drift.
-             * Uses chunked non-blocking execution to keep the UI fully responsive.
-             */
             async function executeInterlacedRender() {
                 if (!state.imageA || !state.imageB || state.render.isRendering) return;
 
                 state.render.isRendering = true;
-                showProgress(true, 'Preparing High-Resolution Canvases...', 'Rasterizing source layers', 5);
-
+                showProgress(true, 'Preparing Canvases...', 'Rasterizing source layers', 10);
                 await yieldThread();
 
                 const targetW = state.imageA.width;
@@ -1244,33 +1130,26 @@
                 const lpi = state.print.lpi;
                 const isVertical = (state.simulation.direction === 'vertical');
 
-                // 1. Prepare Normalized View A Layer
                 const canvasA = document.createElement('canvas');
                 canvasA.width = targetW;
                 canvasA.height = targetH;
                 const ctxA = canvasA.getContext('2d', { willReadFrequently: true });
                 ctxA.drawImage(state.imageA.img, 0, 0, targetW, targetH);
 
-                showProgress(true, 'Normalizing View B Geometry...', 'Applying optical alignment transforms', 15);
-                await yieldThread();
-
-                // 2. Prepare Normalized View B Layer
                 const canvasB = document.createElement('canvas');
                 canvasB.width = targetW;
                 canvasB.height = targetH;
                 const ctxB = canvasB.getContext('2d', { willReadFrequently: true });
                 drawTransformedImage(ctxB, state.imageB.img, targetW, targetH, state.fitMode, state.alignment);
 
-                showProgress(true, 'Extracting Pixel Buffers...', 'Allocating 32-bit linear pixel memory', 25);
+                showProgress(true, 'Allocating Pixel Memory...', 'Extracting 32-bit linear buffers', 25);
                 await yieldThread();
 
-                // 3. Extract 32-bit RGBA TypedArrays for blazing performance
                 const imgDataA = ctxA.getImageData(0, 0, targetW, targetH);
                 const imgDataB = ctxB.getImageData(0, 0, targetW, targetH);
                 const bufA = new Uint32Array(imgDataA.data.buffer);
                 const bufB = new Uint32Array(imgDataB.data.buffer);
 
-                // Prepare Output Canvas & Buffer
                 const outputCanvas = dom.interlacedOutputCanvas;
                 outputCanvas.width = targetW;
                 outputCanvas.height = targetH;
@@ -1281,13 +1160,7 @@
                 showProgress(true, 'Executing Optical Interlace...', 'Interleaving lenticular pixel columns', 30);
                 await yieldThread();
 
-                // 4. Interlacing Math Execution (Chunked)
-                // Deterministic formula for each coordinate:
-                // stripeIndex = floor((coord * LPI * 2) / DPI)
-                // view = stripeIndex % 2 (0 = View A, 1 = View B)
                 if (isVertical) {
-                    // Vertical lenticules (columns interleaved horizontally)
-                    // Precompute ownership table for each X column
                     const colOwnerIsB = new Uint8Array(targetW);
                     for (let x = 0; x < targetW; x++) {
                         const stripeIdx = Math.floor((x * lpi * 2) / dpi);
@@ -1297,7 +1170,6 @@
                     const CHUNK_ROWS = 64;
                     for (let startY = 0; startY < targetH; startY += CHUNK_ROWS) {
                         const endY = Math.min(startY + CHUNK_ROWS, targetH);
-
                         for (let y = startY; y < endY; y++) {
                             const rowOffset = y * targetW;
                             for (let x = 0; x < targetW; x++) {
@@ -1311,21 +1183,16 @@
                         await yieldThread();
                     }
                 } else {
-                    // Horizontal lenticules (rows interleaved vertically)
                     const CHUNK_ROWS = 64;
                     for (let startY = 0; startY < targetH; startY += CHUNK_ROWS) {
                         const endY = Math.min(startY + CHUNK_ROWS, targetH);
-
                         for (let y = startY; y < endY; y++) {
                             const stripeIdx = Math.floor((y * lpi * 2) / dpi);
                             const isB = (stripeIdx % 2 === 1);
                             const rowOffset = y * targetW;
 
-                            if (isB) {
-                                bufOut.set(bufB.subarray(rowOffset, rowOffset + targetW), rowOffset);
-                            } else {
-                                bufOut.set(bufA.subarray(rowOffset, rowOffset + targetW), rowOffset);
-                            }
+                            if (isB) bufOut.set(bufB.subarray(rowOffset, rowOffset + targetW), rowOffset);
+                            else bufOut.set(bufA.subarray(rowOffset, rowOffset + targetW), rowOffset);
                         }
 
                         const progress = 30 + Math.round((endY / targetH) * 60);
@@ -1334,65 +1201,50 @@
                     }
                 }
 
-                showProgress(true, 'Finalizing Lossless Buffer...', 'Committing pixels to output surface', 95);
-                await yieldThread();
-
-                // 5. Commit interlaced pixels to output canvas
                 outputCtx.putImageData(outputImgData, 0, 0);
 
-                // Update Output Details
                 const stripeWidth = dpi / (lpi * 2);
                 dom.outStatsResolution.textContent = `Resolution: ${targetW} × ${targetH} px`;
-                dom.outStatsSpecs.textContent = `${dpi} DPI • ${lpi} LPI • Stripe: ${stripeWidth.toFixed(2)} px • ${isVertical ? 'Vertical' : 'Horizontal'}`;
+                dom.outStatsSpecs.textContent = `${dpi} DPI • ${lpi} LPI • Stripe: ${stripeWidth.toFixed(2)} px`;
 
                 state.render.generatedCanvas = outputCanvas;
                 dom.outputReadyBadge.classList.remove('hidden');
 
                 showProgress(true, 'Complete!', 'Interlaced result ready for export', 100);
-                await new Promise(r => setTimeout(r, 350));
+                await new Promise(r => setTimeout(r, 250));
 
                 showProgress(false);
                 state.render.isRendering = false;
                 switchTab('output');
+
+                // If on mobile screen, auto open preview/output panel
+                if (window.innerWidth < 1024) {
+                    switchMobileView('preview');
+                }
             }
 
-            /**
-             * Download the interlaced canvas as a lossless PNG with formatted metadata filename
-             */
             function downloadInterlacedPNG() {
                 if (!state.render.generatedCanvas) return;
-
                 const targetW = state.render.generatedCanvas.width;
                 const targetH = state.render.generatedCanvas.height;
-                const dpi = state.print.dpi;
-                const lpi = state.print.lpi;
-                const filename = `lenticular-interlaced-${targetW}x${targetH}-${dpi}dpi-${lpi}lpi.png`;
+                const filename = `lenticular-interlaced-${targetW}x${targetH}-${state.print.dpi}dpi-${state.print.lpi}lpi.png`;
 
                 state.render.generatedCanvas.toBlob((blob) => {
-                    if (!blob) {
-                        alert('Error generating PNG export.');
-                        return;
-                    }
-                    const downloadUrl = URL.createObjectURL(blob);
+                    if (!blob) return;
+                    const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.download = filename;
-                    link.href = downloadUrl;
-                    document.body.appendChild(link);
+                    link.href = url;
                     link.click();
-                    document.body.removeChild(link);
-
-                    setTimeout(() => URL.revokeObjectURL(downloadUrl), 5000);
+                    setTimeout(() => URL.revokeObjectURL(url), 5000);
                 }, 'image/png');
             }
 
-            /**
-             * Switch between Simulator view and Generated Output view
-             */
             function switchTab(tab) {
                 state.activeTab = tab;
                 if (tab === 'sim') {
-                    dom.tabSim.className = 'px-3 py-1 rounded-md text-xs font-medium bg-slate-800 text-white border border-studio-border transition';
-                    dom.tabOutput.className = 'px-3 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white border border-transparent transition flex items-center space-x-1.5';
+                    dom.tabSim.className = 'px-3 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 transition';
+                    dom.tabOutput.className = 'px-3 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 border border-transparent transition flex items-center space-x-1.5';
                     if (state.imageA && state.imageB) {
                         dom.simulatorWrapper.classList.remove('hidden');
                         dom.emptyState.classList.add('hidden');
@@ -1402,24 +1254,18 @@
                     }
                     dom.outputWrapper.classList.add('hidden');
                 } else {
-                    dom.tabOutput.className = 'px-3 py-1 rounded-md text-xs font-medium bg-slate-800 text-white border border-studio-border transition flex items-center space-x-1.5';
-                    dom.tabSim.className = 'px-3 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white border border-transparent transition';
+                    dom.tabOutput.className = 'px-3 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 transition flex items-center space-x-1.5';
+                    dom.tabSim.className = 'px-3 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 border border-transparent transition';
                     dom.simulatorWrapper.classList.add('hidden');
                     dom.emptyState.classList.add('hidden');
                     dom.outputWrapper.classList.remove('hidden');
                 }
             }
 
-            /**
-             * Helper to yield main execution thread allowing DOM to repaint
-             */
             function yieldThread() {
                 return new Promise(resolve => setTimeout(resolve, 0));
             }
 
-            /**
-             * Show/hide non-blocking progress modal
-             */
             function showProgress(visible, title = '', subtitle = '', percent = 0) {
                 if (visible) {
                     dom.renderOverlay.classList.remove('hidden');
@@ -1432,9 +1278,6 @@
                 }
             }
 
-            /**
-             * Documentation modal handlers
-             */
             function setupHelpModal() {
                 dom.btnOpenHelp.addEventListener('click', () => dom.helpModal.classList.remove('hidden'));
                 dom.btnCloseHelp.addEventListener('click', () => dom.helpModal.classList.add('hidden'));
@@ -1444,14 +1287,8 @@
                 });
             }
 
-            /**
-             * Complete studio state reset
-             */
             function resetStudio() {
-                if (!confirm('Reset Lenticular Studio to initial state? All loaded images and settings will be cleared.')) {
-                    return;
-                }
-
+                if (!confirm('Reset all loaded images and settings?')) return;
                 stopAnimation();
 
                 if (state.imageA && state.imageA.url) URL.revokeObjectURL(state.imageA.url);
@@ -1472,7 +1309,6 @@
                 state.render.isRendering = false;
                 state.render.generatedCanvas = null;
 
-                // Reset inputs and controls
                 dom.fileInputA.value = '';
                 dom.fileInputB.value = '';
                 updateDropzoneUI('imageA');
@@ -1506,7 +1342,6 @@
                 outCtx.clearRect(0, 0, dom.interlacedOutputCanvas.width, dom.interlacedOutputCanvas.height);
             }
 
-            // Bootstrap application
             init();
         })();
     </script>
