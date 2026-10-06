@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-100 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+<html lang="en" class="h-full bg-slate-50 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Lenticular Studio — Print-Ready Interlacing Engine & Simulator</title>
+    <title>Custom Lenticular Store — 3D Flip Phone Cases & Photo Frames</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -11,506 +11,345 @@
             theme: {
                 extend: {
                     colors: {
-                        studio: {
-                            bg: '#f8fafc',
-                            panel: '#ffffff',
-                            card: '#f1f5f9',
-                            border: '#e2e8f0',
-                            accent: '#4f46e5',
-                            accentHover: '#4338ca',
+                        brand: {
+                            50: '#eef2ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
                         }
-                    },
-                    fontFamily: {
-                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
                     }
                 }
             }
         }
     </script>
     <style>
-        #controlsPanel, #stageContainer {
+        #scrollableArea, #mockupStage {
             -webkit-overflow-scrolling: touch;
             overscroll-behavior-y: contain;
         }
 
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-
-        input[type="range"] {
-            -webkit-appearance: none;
-            background: #e2e8f0;
-            border-radius: 9999px;
-            height: 6px;
+        /* Phone Case Mockup Shell */
+        .mockup-phone {
+            border: 14px solid #1e293b;
+            border-radius: 42px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), inset 0 0 10px rgba(0,0,0,0.5);
+            position: relative;
         }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 18px;
-            width: 18px;
-            border-radius: 50%;
-            background: #4f46e5;
-            cursor: pointer;
-            box-shadow: 0 1px 4px rgba(79, 70, 229, 0.4);
-            border: 2px solid #ffffff;
+        /* Camera Bump Cutout */
+        .mockup-phone::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            width: 52px;
+            height: 52px;
+            background: #0f172a;
+            border-radius: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            border: 2px solid #334155;
+            pointer-events: none;
+            z-index: 10;
         }
 
-        .lens-overlay-vertical {
+        /* Photo Frame Mockup Shell */
+        .mockup-frame {
+            border: 20px solid #271c19;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3), inset 0 0 0 8px #f8fafc, inset 0 0 12px rgba(0,0,0,0.25);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        /* Lenticular Ridges */
+        .lens-overlay {
             background: repeating-linear-gradient(
                 90deg,
-                rgba(255, 255, 255, 0.35) 0px,
-                rgba(255, 255, 255, 0.15) 1px,
+                rgba(255, 255, 255, 0.28) 0px,
+                rgba(255, 255, 255, 0.1) 1px,
                 rgba(0, 0, 0, 0.08) 2px,
                 transparent 3px,
-                transparent var(--lens-pitch, 8px)
+                transparent 8px
             );
-        }
-        .lens-overlay-horizontal {
-            background: repeating-linear-gradient(
-                180deg,
-                rgba(255, 255, 255, 0.35) 0px,
-                rgba(255, 255, 255, 0.15) 1px,
-                rgba(0, 0, 0, 0.08) 2px,
-                transparent 3px,
-                transparent var(--lens-pitch, 8px)
-            );
-        }
-        #simulatorWrapper {
-            touch-action: none;
         }
     </style>
 </head>
-<body class="h-[100dvh] flex flex-col overflow-hidden bg-slate-100 font-sans text-xs select-none">
+<body class="h-[100dvh] flex flex-col overflow-hidden bg-slate-50 font-sans text-xs select-none">
 
-    <!-- Header Navigation -->
-    <header class="h-13 py-2 border-b border-studio-border bg-white px-3 sm:px-6 flex items-center justify-between z-30 shrink-0 shadow-sm">
-        <div class="flex items-center space-x-2 sm:space-x-3 overflow-hidden">
-            <div class="flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-600 text-white shadow-sm shrink-0">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <rect x="3" y="3" width="18" height="18" rx="4"></rect>
-                    <line x1="8" y1="3" x2="8" y2="21"></line>
-                    <line x1="12" y1="3" x2="12" y2="21"></line>
-                    <line x1="16" y1="3" x2="16" y2="21"></line>
-                </svg>
+    <!-- Store Header -->
+    <header class="h-14 py-2 border-b border-slate-200 bg-white px-4 sm:px-8 flex items-center justify-between z-30 shrink-0 shadow-sm">
+        <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-indigo-200">
+                ✨
             </div>
-            <div class="truncate">
-                <h1 class="text-xs sm:text-base font-bold text-slate-900 leading-tight truncate">Lenticular Studio</h1>
-                <p class="hidden md:block text-[11px] text-slate-500 truncate">Print-Ready Interlacing & Gyroscope Motion</p>
+            <div>
+                <h1 class="text-sm sm:text-base font-extrabold text-slate-900 leading-tight">Lenticular Magic Store</h1>
+                <p class="text-[10px] sm:text-[11px] text-slate-500">2-Photo Flip Phone Cases & Picture Frames</p>
             </div>
         </div>
 
-        <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
-            <div id="statusBadge" class="flex items-center space-x-1.5 px-2 py-1 rounded-full bg-slate-50 border border-studio-border text-[11px] text-slate-700">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500" id="statusDot"></span>
-                <span id="statusText" class="font-medium hidden xs:inline">Waiting</span>
-            </div>
-
-            <button id="btnOpenHelp" class="p-1.5 sm:px-2.5 sm:py-1 rounded-lg border border-studio-border bg-white hover:bg-slate-50 text-slate-700 text-xs flex items-center space-x-1">
-                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="hidden sm:inline">Guide</span>
-            </button>
-
-            <button id="btnResetStudio" class="p-1.5 sm:px-2.5 sm:py-1 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs flex items-center space-x-1">
-                <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                <span class="hidden sm:inline">Reset</span>
-            </button>
-        </div>
+        <button id="btnOpenOrder" class="px-3 sm:px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs shadow-md shadow-emerald-600/20 flex items-center space-x-1.5 transition">
+            <span>🛒</span>
+            <span>Order Now</span>
+        </button>
     </header>
 
-    <!-- Mobile View Bar -->
-    <div class="lg:hidden flex border-b border-studio-border bg-white px-2 py-1.5 gap-1.5 shrink-0 z-20">
-        <button id="mobileTabControls" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition">
-            ⚙️ Controls & Upload
+    <!-- Mobile Switcher (Customize vs Preview) -->
+    <div class="lg:hidden flex border-b border-slate-200 bg-white px-2 py-1.5 gap-1.5 shrink-0 z-20">
+        <button id="mobileTabUpload" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition">
+            1. Select & Upload
         </button>
-        <button id="mobileTabPreview" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition flex items-center justify-center space-x-1">
-            <span>👁️ 3D Preview</span>
-            <span id="mobileBadgeOutputReady" class="hidden w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        <button id="mobileTabMockup" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition flex items-center justify-center space-x-1">
+            <span>2. Live Preview</span>
+            <span id="previewReadyBadge" class="hidden w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
         </button>
     </div>
 
     <!-- Main Workspace -->
     <main class="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden relative">
         
-        <!-- Controls Sidebar -->
-        <aside id="controlsPanel" class="w-full lg:w-[420px] shrink-0 border-r border-studio-border bg-white flex flex-col overflow-y-auto min-h-0 flex-1 z-10 relative">
-            <div class="p-3.5 sm:p-4 space-y-3.5 sm:space-y-4 pb-36">
+        <!-- Left: Customer Configurator -->
+        <aside id="configPanel" class="w-full lg:w-[420px] shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-y-auto min-h-0 flex-1 z-10">
+            <div class="p-4 space-y-4 pb-36">
 
-                <!-- 1. Source Views -->
+                <!-- Step 1: Product Selection -->
+                <div class="space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">1. Select Your Product</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btnProductPhone" class="product-btn p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold flex flex-col items-center space-y-1 transition">
+                            <span class="text-xl">📱</span>
+                            <span class="text-xs">Phone Case</span>
+                            <span class="text-[10px] text-indigo-500 font-normal">Flip Effect</span>
+                        </button>
+                        <button id="btnProductFrame" class="product-btn p-3 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-700 font-bold flex flex-col items-center space-y-1 hover:border-slate-300 transition">
+                            <span class="text-xl">🖼️</span>
+                            <span class="text-xs">Photo Frame</span>
+                            <span class="text-[10px] text-slate-500 font-normal">Desk / Wall Stand</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Upload 2 Customer Photos -->
                 <div class="space-y-2.5">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">1. Source Views</span>
-                        <button id="btnSwapImages" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1 disabled:opacity-40 disabled:pointer-events-none" disabled>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
-                            <span>Swap A ↔ B</span>
-                        </button>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">2. Upload Your 2 Photos</span>
+                        <button id="btnSwapPhotos" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold disabled:opacity-40" disabled>Swap 1 ↔ 2</button>
                     </div>
 
-                    <!-- Dropzone A -->
-                    <div id="dropzoneA" class="group relative rounded-xl border-2 border-dashed border-studio-border bg-slate-50 p-2.5 sm:p-3 transition hover:border-indigo-400 hover:bg-indigo-50/30">
-                        <input type="file" id="fileInputA" accept="image/png, image/jpeg, image/webp" class="hidden">
-                        <div id="emptyA" class="flex flex-col items-center justify-center py-2 cursor-pointer">
-                            <div class="p-1.5 sm:p-2 rounded-full bg-white shadow-sm border border-slate-200 text-indigo-600 group-hover:scale-105 transition">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <!-- Photo 1 -->
+                    <div id="dropzoneA" class="relative rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-3 hover:border-indigo-400 cursor-pointer transition">
+                        <input type="file" id="fileInputA" accept="image/*" class="hidden">
+                        <div id="emptyA" class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">1</div>
+                            <div>
+                                <div class="font-bold text-slate-800 text-xs">First Photo (Angle A)</div>
+                                <div class="text-[11px] text-slate-500">Tap to upload photo</div>
                             </div>
-                            <span class="mt-1.5 text-xs font-semibold text-slate-800">Image A — View 1 (Anchor)</span>
-                            <span class="text-[11px] text-slate-500">Tap to upload image</span>
                         </div>
                         <div id="loadedA" class="hidden flex items-center justify-between">
-                            <div class="flex items-center space-x-2.5 overflow-hidden">
-                                <img id="thumbA" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg border border-slate-200 bg-slate-100 shrink-0" alt="Preview A">
+                            <div class="flex items-center space-x-2.5 truncate">
+                                <img id="thumbA" class="w-10 h-10 object-cover rounded-lg border border-slate-200 bg-slate-100 shrink-0">
                                 <div class="truncate">
-                                    <div class="flex items-center space-x-1.5">
-                                        <span class="text-xs font-semibold text-slate-800 truncate" id="nameA">image-a.jpg</span>
-                                        <span class="text-[10px] px-1 py-0.2 rounded bg-indigo-100 text-indigo-700 font-mono font-medium" id="fmtA">JPG</span>
-                                    </div>
-                                    <div class="text-[11px] text-slate-500 font-mono" id="metaA">0x0 • 0 KB</div>
+                                    <div class="font-bold text-slate-800 text-xs truncate" id="nameA">Photo 1</div>
+                                    <div class="text-[10px] text-emerald-600 font-semibold">✓ Uploaded</div>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-1 shrink-0">
-                                <button id="btnReplaceA" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></button>
-                                <button id="btnRemoveA" class="p-1.5 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                            </div>
+                            <button id="btnRemoveA" class="p-1 text-slate-400 hover:text-rose-600">✕</button>
                         </div>
                     </div>
 
-                    <!-- Dropzone B -->
-                    <div id="dropzoneB" class="group relative rounded-xl border-2 border-dashed border-studio-border bg-slate-50 p-2.5 sm:p-3 transition hover:border-indigo-400 hover:bg-indigo-50/30">
-                        <input type="file" id="fileInputB" accept="image/png, image/jpeg, image/webp" class="hidden">
-                        <div id="emptyB" class="flex flex-col items-center justify-center py-2 cursor-pointer">
-                            <div class="p-1.5 sm:p-2 rounded-full bg-white shadow-sm border border-slate-200 text-indigo-600 group-hover:scale-105 transition">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <!-- Photo 2 -->
+                    <div id="dropzoneB" class="relative rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-3 hover:border-indigo-400 cursor-pointer transition">
+                        <input type="file" id="fileInputB" accept="image/*" class="hidden">
+                        <div id="emptyB" class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">2</div>
+                            <div>
+                                <div class="font-bold text-slate-800 text-xs">Second Photo (Angle B)</div>
+                                <div class="text-[11px] text-slate-500">Tap to upload photo</div>
                             </div>
-                            <span class="mt-1.5 text-xs font-semibold text-slate-800">Image B — View 2</span>
-                            <span class="text-[11px] text-slate-500">Tap to upload image</span>
                         </div>
                         <div id="loadedB" class="hidden flex items-center justify-between">
-                            <div class="flex items-center space-x-2.5 overflow-hidden">
-                                <img id="thumbB" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg border border-slate-200 bg-slate-100 shrink-0" alt="Preview B">
+                            <div class="flex items-center space-x-2.5 truncate">
+                                <img id="thumbB" class="w-10 h-10 object-cover rounded-lg border border-slate-200 bg-slate-100 shrink-0">
                                 <div class="truncate">
-                                    <div class="flex items-center space-x-1.5">
-                                        <span class="text-xs font-semibold text-slate-800 truncate" id="nameB">image-b.jpg</span>
-                                        <span class="text-[10px] px-1 py-0.2 rounded bg-indigo-100 text-indigo-700 font-mono font-medium" id="fmtB">JPG</span>
-                                    </div>
-                                    <div class="text-[11px] text-slate-500 font-mono" id="metaB">0x0 • 0 KB</div>
+                                    <div class="font-bold text-slate-800 text-xs truncate" id="nameB">Photo 2</div>
+                                    <div class="text-[10px] text-emerald-600 font-semibold">✓ Uploaded</div>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-1 shrink-0">
-                                <button id="btnReplaceB" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></button>
-                                <button id="btnRemoveB" class="p-1.5 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                            </div>
+                            <button id="btnRemoveB" class="p-1 text-slate-400 hover:text-rose-600">✕</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. Normalization & Fit -->
-                <div class="p-3 rounded-xl bg-slate-50 border border-studio-border space-y-2.5">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">2. Fit & Alignment</span>
-                        <button id="btnAutoAlign" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold">Auto-Center</button>
-                    </div>
-
+                <!-- Step 3: Photo Fitting -->
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <span class="text-xs font-bold text-slate-700">Photo Crop Mode</span>
                     <div class="grid grid-cols-3 gap-1.5">
-                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-indigo-600 bg-indigo-50 text-indigo-700 transition" data-fit="cover">Cover</button>
-                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 transition" data-fit="contain">Contain</button>
-                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 transition" data-fit="stretch">Stretch</button>
-                    </div>
-
-                    <div class="pt-2 border-t border-studio-border space-y-2">
-                        <span class="text-[11px] font-semibold text-slate-600">View B Alignment Offsets</span>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div>
-                                <div class="flex justify-between text-slate-500 mb-0.5"><span>X</span><span id="valOffsetX" class="font-mono text-slate-700">0px</span></div>
-                                <input type="range" id="sliderOffsetX" min="-200" max="200" value="0" class="w-full">
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-slate-500 mb-0.5"><span>Y</span><span id="valOffsetY" class="font-mono text-slate-700">0px</span></div>
-                                <input type="range" id="sliderOffsetY" min="-200" max="200" value="0" class="w-full">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div>
-                                <div class="flex justify-between text-slate-500 mb-0.5"><span>Scale</span><span id="valScale" class="font-mono text-slate-700">1.00x</span></div>
-                                <input type="range" id="sliderScale" min="0.5" max="1.5" step="0.01" value="1.0" class="w-full">
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-slate-500 mb-0.5"><span>Rot</span><span id="valRotation" class="font-mono text-slate-700">0.0°</span></div>
-                                <input type="range" id="sliderRotation" min="-15" max="15" step="0.1" value="0" class="w-full">
-                            </div>
-                        </div>
+                        <button class="fit-btn py-1 text-xs rounded-lg font-bold border border-indigo-600 bg-indigo-50 text-indigo-700 transition" data-fit="cover">Fill</button>
+                        <button class="fit-btn py-1 text-xs rounded-lg font-medium border border-slate-200 bg-white text-slate-600 transition" data-fit="contain">Fit All</button>
+                        <button class="fit-btn py-1 text-xs rounded-lg font-medium border border-slate-200 bg-white text-slate-600 transition" data-fit="stretch">Stretch</button>
                     </div>
                 </div>
 
-                <!-- 3. Simulation & Sensor Controls -->
-                <div class="p-3 rounded-xl bg-slate-50 border border-studio-border space-y-2.5">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">3. Simulation & Sensor</span>
-                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold animate-pulse">Auto-Motion Ready</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-1.5 text-xs">
-                        <button id="modeTilt" class="sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition text-center flex items-center justify-center space-x-1">
-                            <span>📱 Tilt Gyro</span>
-                        </button>
-                        <button id="modePointer" class="sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 font-medium transition text-center">Swipe</button>
-                        <button id="modeLoop" class="sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 font-medium transition text-center">Auto-Loop</button>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs pt-1">
-                        <span class="text-slate-600 font-medium">Direction:</span>
-                        <div class="inline-flex rounded-lg p-0.5 bg-slate-200/80 border border-studio-border">
-                            <button id="dirHorizontal" class="px-2 py-0.5 rounded text-xs font-medium text-slate-600 hover:text-slate-900 transition">Horiz (Flip)</button>
-                            <button id="dirVertical" class="px-2 py-0.5 rounded text-xs font-semibold bg-white text-indigo-700 shadow-sm transition">Vert (3D)</button>
-                        </div>
-                    </div>
-
-                    <div id="loopSpeedContainer" class="hidden space-y-1">
-                        <div class="flex justify-between text-xs text-slate-500"><span>Speed</span><span id="valSpeed" class="font-mono text-slate-700">1.0x</span></div>
-                        <input type="range" id="sliderSpeed" min="0.2" max="3" step="0.1" value="1.0" class="w-full">
-                    </div>
-
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-xs text-slate-500"><span>Transition Softness</span><span id="valTransition" class="font-mono text-slate-700">4%</span></div>
-                        <input type="range" id="sliderTransition" min="1" max="25" value="4" class="w-full">
-                    </div>
-
-                    <div class="pt-1.5 border-t border-studio-border flex items-center justify-between">
-                        <label for="toggleLens" class="text-xs text-slate-700 font-medium flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="toggleLens" checked class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-0">
-                            <span>Lens Micro-Grooves</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- 4. Print Settings -->
-                <div class="p-3 rounded-xl bg-slate-50 border border-studio-border space-y-2.5">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">4. Print Interlacing Specs</span>
-
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                            <label class="block text-slate-600 font-medium mb-1">Printer DPI</label>
-                            <select id="selectDPI" class="w-full bg-white border border-studio-border rounded-lg px-2 py-1 text-slate-800 focus:outline-none">
+                <!-- Admin / Print Shop Tools (Hidden in Accordion) -->
+                <details class="p-3 rounded-xl bg-slate-100/70 border border-slate-200 text-slate-600">
+                    <summary class="font-bold text-xs text-slate-700 cursor-pointer">🛠️ Print Master / Lab Specs</summary>
+                    <div class="mt-3 space-y-2.5 pt-2 border-t border-slate-200 text-xs">
+                        <div class="flex justify-between items-center">
+                            <span>Printer DPI:</span>
+                            <select id="selectDPI" class="bg-white border border-slate-300 rounded px-2 py-0.5 font-mono">
                                 <option value="300">300 DPI</option>
                                 <option value="600" selected>600 DPI</option>
                                 <option value="1200">1200 DPI</option>
                             </select>
                         </div>
-                        <div>
-                            <div class="flex justify-between text-slate-600 font-medium mb-1">
-                                <label>Lens LPI</label>
-                                <span id="valLPI" class="font-mono text-indigo-700 font-bold">75 LPI</span>
-                            </div>
-                            <input type="range" id="sliderLPI" min="10" max="100" value="75" class="w-full">
+                        <div class="flex justify-between items-center">
+                            <span>Lens LPI:</span>
+                            <input type="number" id="inputLPI" value="75" min="10" max="120" class="w-16 bg-white border border-slate-300 rounded px-2 py-0.5 text-center font-mono">
                         </div>
+                        <button id="btnGeneratePrint" class="w-full py-2 rounded-lg bg-slate-800 text-white font-bold hover:bg-slate-900 transition">
+                            Download High-Res Print File
+                        </button>
                     </div>
-
-                    <div class="rounded-lg bg-white border border-studio-border p-2 text-xs font-mono space-y-0.5 shadow-sm">
-                        <div class="flex justify-between text-slate-500"><span>Stripe Width:</span><span id="badgeStripeWidth" class="text-emerald-700 font-bold">4.00 px</span></div>
-                        <div class="flex justify-between text-slate-500"><span>Lens Pitch:</span><span id="badgePitchWidth" class="text-slate-700">8.00 px</span></div>
-                    </div>
-                </div>
-
-                <!-- 5. Render Button -->
-                <div class="pt-2">
-                    <button id="btnGenerate" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold shadow-md shadow-indigo-600/25 transition flex items-center justify-center space-x-2 disabled:opacity-40 disabled:pointer-events-none">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                        <span>Generate Interlaced Image</span>
-                    </button>
-                </div>
+                </details>
 
             </div>
 
-            <!-- Sticky Bottom Quick-Generate for Mobile -->
-            <div id="mobileStickyBar" class="lg:hidden sticky bottom-0 inset-x-0 p-2.5 bg-white/95 backdrop-blur-md border-t border-studio-border shadow-lg z-20">
-                <button id="btnGenerateSticky" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold text-xs shadow-md shadow-indigo-600/30 flex items-center justify-center space-x-1.5 disabled:opacity-40 disabled:pointer-events-none">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    <span>⚡ Generate Interlaced Image</span>
+            <!-- Sticky Order Bar on Mobile -->
+            <div class="lg:hidden sticky bottom-0 inset-x-0 p-3 bg-white/95 backdrop-blur-md border-t border-slate-200 z-20">
+                <button id="btnStickyOrder" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center justify-center space-x-1.5">
+                    <span>🛒 Place Order with These 2 Photos</span>
                 </button>
             </div>
         </aside>
 
-        <!-- Right Workspace Panel (Vertically Scrollable on Mobile) -->
-        <section id="previewPanel" class="hidden lg:flex flex-1 min-h-0 flex-col bg-slate-100 overflow-hidden relative">
+        <!-- Right: Live Product Mockup Stage -->
+        <section id="mockupSection" class="hidden lg:flex flex-1 min-h-0 flex-col bg-slate-100 overflow-hidden relative">
 
-            <!-- Top Tab Bar: Includes Top Quick-Download Button -->
-            <div class="h-11 border-b border-studio-border bg-white px-3 sm:px-6 flex items-center justify-between shrink-0 shadow-sm gap-2 z-20">
-                <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
-                    <button id="tabSim" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 transition">Simulator</button>
-                    <button id="tabOutput" class="px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 border border-transparent transition flex items-center space-x-1">
-                        <span>Output</span>
-                        <span id="outputReadyBadge" class="hidden w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    </button>
+            <!-- Mockup Header Bar -->
+            <div class="h-11 border-b border-slate-200 bg-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-sm">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-bold text-slate-700" id="mockupTitle">Live 3D Phone Case Preview</span>
+                    <span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold">Tilt Device to Flip</span>
                 </div>
 
-                <!-- TOP QUICK-DOWNLOAD BUTTON (Permanently Visible When Output Is Active) -->
-                <div class="flex items-center space-x-2 overflow-hidden">
-                    <button id="btnDownloadTop" class="hidden px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs transition items-center space-x-1 shadow-sm shrink-0">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        <span>Download PNG</span>
-                    </button>
-
-                    <div class="hidden sm:flex items-center space-x-2 text-[11px] font-mono text-slate-500 truncate">
-                        <span id="canvasDimBadge" class="truncate">0 × 0 px</span>
-                        <span id="activeViewIndicator" class="font-medium text-slate-700 truncate">Anchor A</span>
-                    </div>
+                <div class="text-[11px] font-mono text-slate-500">
+                    <span id="activeAngleText">Showing Photo 1</span>
                 </div>
             </div>
 
-            <!-- Stage Workspace: Scrollable with pb-28 to clear Netlify Badge -->
-            <div class="flex-1 min-h-0 relative flex flex-col items-center justify-start sm:justify-center p-2.5 sm:p-6 overflow-y-auto" id="stageContainer">
+            <!-- Canvas Stage with Real Mockup Border -->
+            <div class="flex-1 min-h-0 relative flex flex-col items-center justify-center p-4 sm:p-8 overflow-y-auto" id="mockupStage">
 
-                <!-- EMPTY STATE -->
-                <div id="emptyState" class="m-auto flex flex-col items-center justify-center text-center max-w-xs sm:max-w-sm p-5 sm:p-8 rounded-2xl border-2 border-dashed border-studio-border bg-white shadow-sm">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mb-2.5">
-                        <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <h2 class="text-xs sm:text-base font-bold text-slate-800">Load Images to Begin</h2>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Upload View A and B. Tilt your phone to experience real optical flip motion.</p>
+                <!-- Empty Prompt -->
+                <div id="emptyPrompt" class="flex flex-col items-center justify-center text-center max-w-sm p-6 rounded-2xl border-2 border-dashed border-slate-300 bg-white">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-2">📸</div>
+                    <h3 class="font-bold text-slate-800 text-sm">Upload Both Photos to See Live Preview</h3>
+                    <p class="text-xs text-slate-500 mt-1">Upload 2 photos on the left. The live phone cover/frame simulation will activate automatically!</p>
                 </div>
 
-                <!-- SIMULATOR VIEWPORT -->
-                <div id="simulatorWrapper" class="hidden m-auto relative max-w-full max-h-full rounded-xl shadow-lg border border-slate-300 bg-slate-900 overflow-hidden cursor-ew-resize flex items-center justify-center">
-                    <canvas id="simCanvas" class="block max-w-full max-h-[calc(100vh-180px)] sm:max-h-[calc(100vh-210px)] object-contain pointer-events-none"></canvas>
-                    <div id="lensOverlay" class="absolute inset-0 pointer-events-none transition-opacity duration-200 lens-overlay-vertical"></div>
+                <!-- Product Mockup Wrapper -->
+                <div id="mockupContainer" class="hidden flex-col items-center justify-center">
+                    
+                    <!-- The Physical Product Shell (Changes between mockup-phone & mockup-frame) -->
+                    <div id="productShell" class="mockup-phone overflow-hidden transition-all duration-300 relative">
+                        <canvas id="liveCanvas" class="block max-w-[280px] sm:max-w-[340px] max-h-[50vh] sm:max-h-[60vh] object-cover"></canvas>
+                        
+                        <!-- Optical Lenticular Sheet Sheen Overlay -->
+                        <div class="lens-overlay absolute inset-0 pointer-events-none"></div>
 
-                    <!-- Gyro Active Notice -->
-                    <div id="gyroNotice" class="absolute top-2.5 px-3 py-1 rounded-full bg-indigo-600 text-white backdrop-blur-md text-[10px] sm:text-xs font-semibold flex items-center space-x-1.5 shadow-md pointer-events-none">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span id="gyroNoticeText">📱 Tilt Phone Left ↔ Right to Flip</span>
+                        <!-- Gyroscope Active Badge -->
+                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold flex items-center space-x-1 shadow-md pointer-events-none">
+                            <span>📱 Tilt Phone Left ↔ Right to Flip</span>
+                        </div>
                     </div>
 
-                    <!-- View Angle Indicator -->
-                    <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 shadow-md flex items-center space-x-2 text-[10px] sm:text-[11px] font-mono pointer-events-none">
-                        <span class="text-indigo-600 font-bold">A</span>
-                        <div class="w-16 sm:w-28 h-1.5 bg-slate-200 rounded-full overflow-hidden relative">
-                            <div id="viewTrackerBar" class="h-full bg-indigo-600 transition-all duration-75" style="width: 50%;"></div>
-                        </div>
-                        <span class="text-indigo-600 font-bold">B</span>
-                        <span id="trackerPercent" class="text-slate-600 font-semibold w-7 text-right">50%</span>
-                    </div>
-                </div>
-
-                <!-- OUTPUT VIEWPORT (Clear of Netlify Badge with pb-28) -->
-                <div id="outputWrapper" class="hidden w-full flex-col items-center justify-start pb-28 pt-2">
-
-                    <!-- Prompt before render -->
-                    <div id="outputEmptyPrompt" class="m-auto flex flex-col items-center justify-center text-center p-5 sm:p-8 max-w-xs sm:max-w-md rounded-2xl border-2 border-dashed border-studio-border bg-white shadow-sm">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mb-2.5">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        </div>
-                        <h3 class="text-xs sm:text-sm font-bold text-slate-800">Not Generated Yet</h3>
-                        <p class="text-[11px] text-slate-500 mt-1 mb-3">Execute the mathematical interlacer to create the print file.</p>
-                        <button id="btnTriggerRenderInside" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition">
-                            Generate Interlaced Image
+                    <!-- Bottom CTA directly under preview -->
+                    <div class="mt-4 flex items-center space-x-3">
+                        <button id="btnDirectOrder" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 active:scale-95 transition flex items-center space-x-1.5">
+                            <span>🛒 Order This Item Now</span>
                         </button>
                     </div>
 
-                    <!-- Active Generated Canvas Container (Constrained on mobile so both image & button fit) -->
-                    <div id="outputContentContainer" class="hidden flex-col items-center justify-center w-full max-w-full">
-                        <div class="relative rounded-xl shadow-lg overflow-hidden border border-slate-300 bg-white max-w-full flex items-center justify-center">
-                            <canvas id="interlacedOutputCanvas" class="block max-w-full max-h-[52vh] sm:max-h-[calc(100vh-230px)] object-contain"></canvas>
-                        </div>
-
-                        <!-- Bottom Export Bar: Clear of Netlify Badge -->
-                        <div class="mt-3 w-full max-w-xs sm:max-w-md px-4 py-2.5 rounded-xl bg-white border border-studio-border shadow-md flex flex-col sm:flex-row items-center justify-between gap-2.5">
-                            <div class="text-[11px] text-center sm:text-left space-y-0.5">
-                                <div class="font-bold text-slate-800" id="outStatsResolution">Resolution: 0 × 0 px</div>
-                                <div class="font-mono text-slate-500" id="outStatsSpecs">600 DPI • 75 LPI</div>
-                            </div>
-                            <button id="btnDownload" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs transition flex items-center justify-center space-x-1.5 shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                <span>Download PNG</span>
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- PROGRESS OVERLAY -->
-                <div id="renderOverlay" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center z-50 p-4">
-                    <div class="w-full max-w-xs p-5 rounded-2xl bg-white border border-slate-200 shadow-2xl text-center space-y-3">
-                        <div class="flex items-center justify-center">
-                            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center animate-spin">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="text-xs sm:text-sm font-bold text-slate-800" id="renderProgressTitle">Interlacing Images...</h3>
-                            <p class="text-[11px] text-slate-500" id="renderProgressSubtitle">Calculating optical pixels</p>
-                        </div>
-                        <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden border border-slate-200">
-                            <div id="renderProgressBar" class="h-full bg-indigo-600 transition-all duration-100" style="width: 0%;"></div>
-                        </div>
-                        <div class="text-[11px] font-mono text-slate-600 font-bold" id="renderProgressPercent">0%</div>
-                    </div>
                 </div>
 
             </div>
         </section>
     </main>
 
-    <!-- DOCUMENTATION MODAL -->
-    <div id="helpModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-        <div class="w-full max-w-md rounded-2xl bg-white border border-studio-border shadow-2xl overflow-hidden">
-            <div class="p-3.5 sm:p-4 border-b border-studio-border flex items-center justify-between">
+    <!-- CUSTOMER ORDER CHECKOUT MODAL -->
+    <div id="orderModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                 <div class="flex items-center space-x-2">
-                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
-                    <h3 class="font-bold text-slate-900 text-xs sm:text-sm">Lenticular Studio Guide</h3>
+                    <span class="text-base">🛒</span>
+                    <h3 class="font-extrabold text-slate-900 text-sm">Place Your Lenticular Order</h3>
                 </div>
-                <button id="btnCloseHelp" class="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button id="btnCloseOrder" class="p-1 rounded-lg hover:bg-slate-200 text-slate-400">✕</button>
+            </div>
+
+            <form id="orderForm" class="p-4 space-y-3 text-xs overflow-y-auto flex-1">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Your Full Name *</label>
+                    <input type="text" id="custName" required placeholder="e.g. John Doe" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-800">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">WhatsApp / Phone Number *</label>
+                    <input type="tel" id="custPhone" required placeholder="e.g. +1 234 567 8900" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-800">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Selected Product</label>
+                    <input type="text" id="orderProductType" readonly class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 font-bold text-indigo-700">
+                </div>
+
+                <div id="phoneModelGroup">
+                    <label class="block font-bold text-slate-700 mb-1">Phone Model (iPhone / Samsung / etc.)</label>
+                    <input type="text" id="custPhoneModel" placeholder="e.g. iPhone 15 Pro Max" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-800">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Delivery Address *</label>
+                    <textarea id="custAddress" required rows="2" placeholder="Full street address, city, postal code" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-800"></textarea>
+                </div>
+
+                <div class="p-2.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-900 text-[11px] leading-relaxed">
+                    ⚡ <strong>How it works:</strong> Clicking submit will connect you with our team on WhatsApp with your uploaded photos to confirm and process your customized 2-photo flip order!
+                </div>
+
+                <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/30 flex items-center justify-center space-x-1.5 transition">
+                    <span>💬 Submit Order via WhatsApp</span>
                 </button>
-            </div>
-            <div class="p-4 space-y-2.5 text-xs text-slate-600 leading-relaxed overflow-y-auto max-h-[60vh]">
-                <div>
-                    <h4 class="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-1">📱 Auto Gyroscope Motion</h4>
-                    <p>On mobile phones, simply tilt your phone left and right to flip between View A and View B.</p>
-                </div>
-                <div>
-                    <h4 class="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-1">Optical Stripe Formula</h4>
-                    <div class="p-2 rounded bg-slate-100 font-mono text-indigo-900 font-semibold border border-slate-200">
-                        Stripe (px) = Printer DPI / (Lens LPI × 2)
-                    </div>
-                </div>
-            </div>
-            <div class="p-3 border-t border-studio-border bg-slate-50 flex justify-end">
-                <button id="btnCloseHelpFooter" class="px-3.5 py-1 rounded-lg bg-indigo-600 text-white font-semibold text-xs">Got it</button>
-            </div>
+            </form>
         </div>
     </div>
 
-    <!-- JAVASCRIPT CORE -->
+    <!-- JAVASCRIPT APPLICATION -->
     <script>
         (() => {
             'use strict';
 
-            const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 1024;
+            // YOUR BUSINESS WHATSAPP NUMBER (Include country code, no + or spaces)
+            const BUSINESS_WHATSAPP_NUMBER = "1234567890"; // <-- Put your WhatsApp number here
 
             const state = {
+                product: 'phone', // 'phone' | 'frame'
                 imageA: null,
                 imageB: null,
                 fitMode: 'cover',
-                alignment: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 },
-                simulation: {
-                    mode: isMobileDevice ? 'tilt' : 'pointer',
-                    direction: 'vertical',
-                    position: 0.5,
-                    targetPosition: 0.5,
-                    speed: 1.0,
-                    transitionSoftness: 0.04,
-                    showLens: true,
-                    loopDirection: 1,
-                    animFrameId: null
-                },
-                print: { dpi: 600, lpi: 75 },
-                render: { isRendering: false, generatedCanvas: null },
-                activeTab: 'sim',
-                mobileTab: 'controls'
+                position: 0.5,
+                targetPosition: 0.5
             };
 
             const dom = {
-                dropzoneA: document.getElementById('dropzoneA'),
-                dropzoneB: document.getElementById('dropzoneB'),
+                btnProductPhone: document.getElementById('btnProductPhone'),
+                btnProductFrame: document.getElementById('btnProductFrame'),
+                productShell: document.getElementById('productShell'),
+                mockupTitle: document.getElementById('mockupTitle'),
+
                 fileInputA: document.getElementById('fileInputA'),
                 fileInputB: document.getElementById('fileInputB'),
+                dropzoneA: document.getElementById('dropzoneA'),
+                dropzoneB: document.getElementById('dropzoneB'),
                 emptyA: document.getElementById('emptyA'),
                 emptyB: document.getElementById('emptyB'),
                 loadedA: document.getElementById('loadedA'),
@@ -519,884 +358,336 @@
                 thumbB: document.getElementById('thumbB'),
                 nameA: document.getElementById('nameA'),
                 nameB: document.getElementById('nameB'),
-                fmtA: document.getElementById('fmtA'),
-                fmtB: document.getElementById('fmtB'),
-                metaA: document.getElementById('metaA'),
-                metaB: document.getElementById('metaB'),
-                btnReplaceA: document.getElementById('btnReplaceA'),
-                btnReplaceB: document.getElementById('btnReplaceB'),
                 btnRemoveA: document.getElementById('btnRemoveA'),
                 btnRemoveB: document.getElementById('btnRemoveB'),
-                btnSwapImages: document.getElementById('btnSwapImages'),
-
+                btnSwapPhotos: document.getElementById('btnSwapPhotos'),
                 fitBtns: document.querySelectorAll('.fit-btn'),
-                btnAutoAlign: document.getElementById('btnAutoAlign'),
-                sliderOffsetX: document.getElementById('sliderOffsetX'),
-                sliderOffsetY: document.getElementById('sliderOffsetY'),
-                sliderScale: document.getElementById('sliderScale'),
-                sliderRotation: document.getElementById('sliderRotation'),
-                valOffsetX: document.getElementById('valOffsetX'),
-                valOffsetY: document.getElementById('valOffsetY'),
-                valScale: document.getElementById('valScale'),
-                valRotation: document.getElementById('valRotation'),
 
-                modePointer: document.getElementById('modePointer'),
-                modeLoop: document.getElementById('modeLoop'),
-                modeTilt: document.getElementById('modeTilt'),
-                gyroNotice: document.getElementById('gyroNotice'),
-                gyroNoticeText: document.getElementById('gyroNoticeText'),
-                dirHorizontal: document.getElementById('dirHorizontal'),
-                dirVertical: document.getElementById('dirVertical'),
-                loopSpeedContainer: document.getElementById('loopSpeedContainer'),
-                sliderSpeed: document.getElementById('sliderSpeed'),
-                valSpeed: document.getElementById('valSpeed'),
-                sliderTransition: document.getElementById('sliderTransition'),
-                valTransition: document.getElementById('valTransition'),
-                toggleLens: document.getElementById('toggleLens'),
+                emptyPrompt: document.getElementById('emptyPrompt'),
+                mockupContainer: document.getElementById('mockupContainer'),
+                liveCanvas: document.getElementById('liveCanvas'),
+                activeAngleText: document.getElementById('activeAngleText'),
+                previewReadyBadge: document.getElementById('previewReadyBadge'),
+
+                mobileTabUpload: document.getElementById('mobileTabUpload'),
+                mobileTabMockup: document.getElementById('mobileTabMockup'),
+                configPanel: document.getElementById('configPanel'),
+                mockupSection: document.getElementById('mockupSection'),
+
+                orderModal: document.getElementById('orderModal'),
+                btnOpenOrder: document.getElementById('btnOpenOrder'),
+                btnStickyOrder: document.getElementById('btnStickyOrder'),
+                btnDirectOrder: document.getElementById('btnDirectOrder'),
+                btnCloseOrder: document.getElementById('btnCloseOrder'),
+                orderForm: document.getElementById('orderForm'),
+                orderProductType: document.getElementById('orderProductType'),
+                phoneModelGroup: document.getElementById('phoneModelGroup'),
 
                 selectDPI: document.getElementById('selectDPI'),
-                sliderLPI: document.getElementById('sliderLPI'),
-                valLPI: document.getElementById('valLPI'),
-                badgeStripeWidth: document.getElementById('badgeStripeWidth'),
-                badgePitchWidth: document.getElementById('badgePitchWidth'),
-
-                btnGenerate: document.getElementById('btnGenerate'),
-                btnGenerateSticky: document.getElementById('btnGenerateSticky'),
-                btnTriggerRenderInside: document.getElementById('btnTriggerRenderInside'),
-                btnResetStudio: document.getElementById('btnResetStudio'),
-                statusBadge: document.getElementById('statusBadge'),
-                statusDot: document.getElementById('statusDot'),
-                statusText: document.getElementById('statusText'),
-                canvasDimBadge: document.getElementById('canvasDimBadge'),
-                activeViewIndicator: document.getElementById('activeViewIndicator'),
-
-                stageContainer: document.getElementById('stageContainer'),
-                emptyState: document.getElementById('emptyState'),
-                simulatorWrapper: document.getElementById('simulatorWrapper'),
-                simCanvas: document.getElementById('simCanvas'),
-                lensOverlay: document.getElementById('lensOverlay'),
-                viewTrackerBar: document.getElementById('viewTrackerBar'),
-                trackerPercent: document.getElementById('trackerPercent'),
-
-                tabSim: document.getElementById('tabSim'),
-                tabOutput: document.getElementById('tabOutput'),
-                outputReadyBadge: document.getElementById('outputReadyBadge'),
-                mobileBadgeOutputReady: document.getElementById('mobileBadgeOutputReady'),
-                outputWrapper: document.getElementById('outputWrapper'),
-                outputEmptyPrompt: document.getElementById('outputEmptyPrompt'),
-                outputContentContainer: document.getElementById('outputContentContainer'),
-                interlacedOutputCanvas: document.getElementById('interlacedOutputCanvas'),
-                outStatsResolution: document.getElementById('outStatsResolution'),
-                outStatsSpecs: document.getElementById('outStatsSpecs'),
-                btnDownload: document.getElementById('btnDownload'),
-                btnDownloadTop: document.getElementById('btnDownloadTop'),
-
-                renderOverlay: document.getElementById('renderOverlay'),
-                renderProgressBar: document.getElementById('renderProgressBar'),
-                renderProgressPercent: document.getElementById('renderProgressPercent'),
-
-                btnOpenHelp: document.getElementById('btnOpenHelp'),
-                btnCloseHelp: document.getElementById('btnCloseHelp'),
-                btnCloseHelpFooter: document.getElementById('btnCloseHelpFooter'),
-                helpModal: document.getElementById('helpModal'),
-
-                controlsPanel: document.getElementById('controlsPanel'),
-                previewPanel: document.getElementById('previewPanel'),
-                mobileTabControls: document.getElementById('mobileTabControls'),
-                mobileTabPreview: document.getElementById('mobileTabPreview')
+                inputLPI: document.getElementById('inputLPI'),
+                btnGeneratePrint: document.getElementById('btnGeneratePrint')
             };
 
-            const simCtx = dom.simCanvas.getContext('2d', { alpha: false });
-            const MAX_FILE_SIZE_MB = 45;
+            const ctx = dom.liveCanvas.getContext('2d');
 
             function init() {
-                setupFileDropzones();
-                setupControls();
+                setupProductSwitch();
+                setupUploads();
+                setupFitButtons();
                 setupMobileNav();
-                setupHelpModal();
-                updateCalculations();
-                renderSimulator();
-                startTiltSensor();
+                setupGyroscope();
+                setupOrderModal();
+                setupPrintButton();
             }
 
-            function setupMobileNav() {
-                dom.mobileTabControls.addEventListener('click', () => switchMobileView('controls'));
-                dom.mobileTabPreview.addEventListener('click', () => switchMobileView('preview'));
+            // Switch between Phone Case Mockup and Photo Frame Mockup
+            function setupProductSwitch() {
+                dom.btnProductPhone.addEventListener('click', () => {
+                    state.product = 'phone';
+                    dom.btnProductPhone.className = 'product-btn p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold flex flex-col items-center space-y-1 transition';
+                    dom.btnProductFrame.className = 'product-btn p-3 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-700 font-bold flex flex-col items-center space-y-1 hover:border-slate-300 transition';
+                    dom.productShell.className = 'mockup-phone overflow-hidden transition-all duration-300 relative';
+                    dom.mockupTitle.textContent = 'Live 3D Phone Case Preview';
+                    renderPreview();
+                });
+
+                dom.btnProductFrame.addEventListener('click', () => {
+                    state.product = 'frame';
+                    dom.btnProductFrame.className = 'product-btn p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold flex flex-col items-center space-y-1 transition';
+                    dom.btnProductPhone.className = 'product-btn p-3 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-700 font-bold flex flex-col items-center space-y-1 hover:border-slate-300 transition';
+                    dom.productShell.className = 'mockup-frame overflow-hidden transition-all duration-300 relative';
+                    dom.mockupTitle.textContent = 'Live Photo Frame Preview';
+                    renderPreview();
+                });
             }
 
-            function switchMobileView(target) {
-                state.mobileTab = target;
-                if (target === 'controls') {
-                    dom.controlsPanel.classList.remove('hidden');
-                    dom.previewPanel.classList.add('hidden');
-                    dom.mobileTabControls.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition';
-                    dom.mobileTabPreview.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition flex items-center justify-center space-x-1';
-                } else {
-                    dom.controlsPanel.classList.add('hidden');
-                    dom.previewPanel.classList.remove('hidden');
-                    dom.previewPanel.classList.add('flex');
-                    dom.mobileTabPreview.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition flex items-center justify-center space-x-1';
-                    dom.mobileTabControls.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition';
-
-                    if (state.simulation.mode === 'tilt') {
-                        startTiltSmoothingLoop();
-                    }
-                }
-            }
-
-            function formatBytes(bytes) {
-                if (bytes === 0) return '0 B';
-                const k = 1024;
-                const sizes = ['B', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-            }
-
-            function setupFileDropzones() {
-                const configureZone = (zone, input, slot) => {
-                    ['dragenter', 'dragover'].forEach(name => {
-                        zone.addEventListener(name, (e) => {
-                            e.preventDefault();
-                            zone.classList.add('border-indigo-500', 'bg-indigo-50');
-                        });
-                    });
-                    ['dragleave', 'drop'].forEach(name => {
-                        zone.addEventListener(name, (e) => {
-                            e.preventDefault();
-                            zone.classList.remove('border-indigo-500', 'bg-indigo-50');
-                        });
-                    });
-                    zone.addEventListener('drop', (e) => {
-                        const file = e.dataTransfer.files && e.dataTransfer.files[0];
-                        if (file) handleImageFile(file, slot);
-                    });
-                    zone.addEventListener('click', (e) => {
+            function setupUploads() {
+                const bindUpload = (dropzone, input, slot) => {
+                    dropzone.addEventListener('click', (e) => {
                         if (e.target.closest('button')) return;
                         input.click();
                     });
                     input.addEventListener('change', (e) => {
                         const file = e.target.files && e.target.files[0];
-                        if (file) handleImageFile(file, slot);
+                        if (file) handleFile(file, slot);
                     });
                 };
 
-                configureZone(dom.dropzoneA, dom.fileInputA, 'imageA');
-                configureZone(dom.dropzoneB, dom.fileInputB, 'imageB');
+                bindUpload(dom.dropzoneA, dom.fileInputA, 'imageA');
+                bindUpload(dom.dropzoneB, dom.fileInputB, 'imageB');
 
-                dom.btnReplaceA.addEventListener('click', () => dom.fileInputA.click());
-                dom.btnReplaceB.addEventListener('click', () => dom.fileInputB.click());
-                dom.btnRemoveA.addEventListener('click', () => removeImage('imageA'));
-                dom.btnRemoveB.addEventListener('click', () => removeImage('imageB'));
-                dom.btnSwapImages.addEventListener('click', swapImages);
+                dom.btnRemoveA.addEventListener('click', () => removeFile('imageA'));
+                dom.btnRemoveB.addEventListener('click', () => removeFile('imageB'));
+                dom.btnSwapPhotos.addEventListener('click', swapPhotos);
             }
 
-            function handleImageFile(file, slot) {
-                const validTypes = ['image/png', 'image/jpeg', 'image/webp'];
-                if (!validTypes.includes(file.type)) {
-                    alert('Please upload a PNG, JPG, or WEBP image.');
-                    return;
-                }
-                if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-                    alert(`The file exceeds ${MAX_FILE_SIZE_MB}MB.`);
-                    return;
-                }
-
+            function handleFile(file, slot) {
                 const url = URL.createObjectURL(file);
                 const img = new Image();
-
                 img.onload = () => {
-                    if (state[slot] && state[slot].url) URL.revokeObjectURL(state[slot].url);
-
-                    state[slot] = {
-                        img,
-                        file,
-                        name: file.name,
-                        width: img.naturalWidth,
-                        height: img.naturalHeight,
-                        format: file.type.split('/')[1].toUpperCase(),
-                        size: file.size,
-                        url
-                    };
-
-                    updateDropzoneUI(slot);
-                    onImagesUpdated();
-
-                    if (state.imageA && state.imageB && window.innerWidth < 1024) {
-                        switchMobileView('preview');
-                    }
-                };
-                img.onerror = () => {
-                    URL.revokeObjectURL(url);
-                    alert('Failed to decode image.');
+                    state[slot] = { img, name: file.name, url };
+                    updateSlotUI(slot);
+                    onPhotosUpdated();
                 };
                 img.src = url;
             }
 
-            function updateDropzoneUI(slot) {
+            function updateSlotUI(slot) {
                 const isA = (slot === 'imageA');
-                const data = state[slot];
-                const emptyEl = isA ? dom.emptyA : dom.emptyB;
-                const loadedEl = isA ? dom.loadedA : dom.loadedB;
-                const thumbEl = isA ? dom.thumbA : dom.thumbB;
-                const nameEl = isA ? dom.nameA : dom.nameB;
-                const fmtEl = isA ? dom.fmtA : dom.fmtB;
-                const metaEl = isA ? dom.metaA : dom.metaB;
+                const empty = isA ? dom.emptyA : dom.emptyB;
+                const loaded = isA ? dom.loadedA : dom.loadedB;
+                const thumb = isA ? dom.thumbA : dom.thumbB;
+                const name = isA ? dom.nameA : dom.nameB;
 
-                if (data) {
-                    emptyEl.classList.add('hidden');
-                    loadedEl.classList.remove('hidden');
-                    thumbEl.src = data.url;
-                    nameEl.textContent = data.name;
-                    fmtEl.textContent = data.format;
-                    metaEl.textContent = `${data.width} × ${data.height} • ${formatBytes(data.size)}`;
+                if (state[slot]) {
+                    empty.classList.add('hidden');
+                    loaded.classList.remove('hidden');
+                    thumb.src = state[slot].url;
+                    name.textContent = state[slot].name;
                 } else {
-                    emptyEl.classList.remove('hidden');
-                    loadedEl.classList.add('hidden');
-                    thumbEl.src = '';
+                    empty.classList.remove('hidden');
+                    loaded.classList.add('hidden');
+                    thumb.src = '';
                 }
-                dom.btnSwapImages.disabled = !(state.imageA && state.imageB);
+
+                dom.btnSwapPhotos.disabled = !(state.imageA && state.imageB);
             }
 
-            function removeImage(slot) {
+            function removeFile(slot) {
                 if (state[slot] && state[slot].url) URL.revokeObjectURL(state[slot].url);
                 state[slot] = null;
-                updateDropzoneUI(slot);
-                onImagesUpdated();
+                updateSlotUI(slot);
+                onPhotosUpdated();
             }
 
-            function swapImages() {
+            function swapPhotos() {
                 if (!state.imageA || !state.imageB) return;
                 const temp = state.imageA;
                 state.imageA = state.imageB;
                 state.imageB = temp;
-                updateDropzoneUI('imageA');
-                updateDropzoneUI('imageB');
-                onImagesUpdated();
+                updateSlotUI('imageA');
+                updateSlotUI('imageB');
+                onPhotosUpdated();
             }
 
-            function onImagesUpdated() {
-                const bothLoaded = !!(state.imageA && state.imageB);
+            function onPhotosUpdated() {
+                const bothReady = !!(state.imageA && state.imageB);
+                if (bothReady) {
+                    dom.emptyPrompt.classList.add('hidden');
+                    dom.mockupContainer.classList.remove('hidden');
+                    dom.mockupContainer.classList.add('flex');
+                    dom.previewReadyBadge.classList.remove('hidden');
 
-                if (state.imageA) {
-                    dom.canvasDimBadge.textContent = `${state.imageA.width} × ${state.imageA.height} px`;
+                    dom.liveCanvas.width = state.imageA.img.naturalWidth;
+                    dom.liveCanvas.height = state.imageA.img.naturalHeight;
+                    renderPreview();
+
+                    if (window.innerWidth < 1024) {
+                        switchMobileTab('mockup');
+                    }
                 } else {
-                    dom.canvasDimBadge.textContent = '0 × 0 px';
-                }
-
-                if (bothLoaded) {
-                    dom.emptyState.classList.add('hidden');
-                    dom.simulatorWrapper.classList.remove('hidden');
-                    dom.btnGenerate.disabled = false;
-                    if (dom.btnGenerateSticky) dom.btnGenerateSticky.disabled = false;
-                    dom.statusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
-                    dom.statusText.textContent = 'Ready';
-
-                    dom.simCanvas.width = state.imageA.width;
-                    dom.simCanvas.height = state.imageA.height;
-
-                    updateLensOverlay();
-                    renderSimulator();
-                } else {
-                    dom.emptyState.classList.remove('hidden');
-                    dom.simulatorWrapper.classList.add('hidden');
-                    dom.btnGenerate.disabled = true;
-                    if (dom.btnGenerateSticky) dom.btnGenerateSticky.disabled = true;
-                    dom.statusDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500';
-                    dom.statusText.textContent = state.imageA ? 'Waiting B' : 'Waiting';
-                    stopAnimation();
+                    dom.emptyPrompt.classList.remove('hidden');
+                    dom.mockupContainer.classList.add('hidden');
+                    dom.previewReadyBadge.classList.add('hidden');
                 }
             }
 
-            function setupControls() {
+            function setupFitButtons() {
                 dom.fitBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
                         dom.fitBtns.forEach(b => {
-                            b.className = 'fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 transition';
+                            b.className = 'fit-btn py-1 text-xs rounded-lg font-medium border border-slate-200 bg-white text-slate-600 transition';
                         });
-                        btn.className = 'fit-btn py-1.5 text-xs rounded-lg font-medium border border-indigo-600 bg-indigo-50 text-indigo-700 transition';
+                        btn.className = 'fit-btn py-1 text-xs rounded-lg font-bold border border-indigo-600 bg-indigo-50 text-indigo-700 transition';
                         state.fitMode = btn.dataset.fit;
-                        renderSimulator();
+                        renderPreview();
                     });
                 });
-
-                dom.btnAutoAlign.addEventListener('click', () => {
-                    state.alignment = { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 };
-                    dom.sliderOffsetX.value = 0;
-                    dom.sliderOffsetY.value = 0;
-                    dom.sliderScale.value = 1.0;
-                    dom.sliderRotation.value = 0;
-                    dom.valOffsetX.textContent = '0px';
-                    dom.valOffsetY.textContent = '0px';
-                    dom.valScale.textContent = '1.00x';
-                    dom.valRotation.textContent = '0.0°';
-                    renderSimulator();
-                });
-
-                dom.sliderOffsetX.addEventListener('input', (e) => {
-                    state.alignment.offsetX = parseFloat(e.target.value);
-                    dom.valOffsetX.textContent = `${state.alignment.offsetX}px`;
-                    renderSimulator();
-                });
-
-                dom.sliderOffsetY.addEventListener('input', (e) => {
-                    state.alignment.offsetY = parseFloat(e.target.value);
-                    dom.valOffsetY.textContent = `${state.alignment.offsetY}px`;
-                    renderSimulator();
-                });
-
-                dom.sliderScale.addEventListener('input', (e) => {
-                    state.alignment.scale = parseFloat(e.target.value);
-                    dom.valScale.textContent = `${state.alignment.scale.toFixed(2)}x`;
-                    renderSimulator();
-                });
-
-                dom.sliderRotation.addEventListener('input', (e) => {
-                    state.alignment.rotation = parseFloat(e.target.value);
-                    dom.valRotation.textContent = `${state.alignment.rotation.toFixed(1)}°`;
-                    renderSimulator();
-                });
-
-                dom.modePointer.addEventListener('click', () => setSimMode('pointer'));
-                dom.modeLoop.addEventListener('click', () => setSimMode('loop'));
-                dom.modeTilt.addEventListener('click', () => setSimMode('tilt'));
-
-                dom.dirHorizontal.addEventListener('click', () => setDirection('horizontal'));
-                dom.dirVertical.addEventListener('click', () => setDirection('vertical'));
-
-                dom.sliderSpeed.addEventListener('input', (e) => {
-                    state.simulation.speed = parseFloat(e.target.value);
-                    dom.valSpeed.textContent = `${state.simulation.speed.toFixed(1)}x`;
-                });
-
-                dom.sliderTransition.addEventListener('input', (e) => {
-                    state.simulation.transitionSoftness = parseInt(e.target.value, 10) / 100;
-                    dom.valTransition.textContent = `${e.target.value}%`;
-                    renderSimulator();
-                });
-
-                dom.toggleLens.addEventListener('change', (e) => {
-                    state.simulation.showLens = e.target.checked;
-                    dom.lensOverlay.style.display = state.simulation.showLens ? 'block' : 'none';
-                });
-
-                dom.selectDPI.addEventListener('change', (e) => {
-                    state.print.dpi = parseInt(e.target.value, 10);
-                    updateCalculations();
-                });
-
-                dom.sliderLPI.addEventListener('input', (e) => {
-                    state.print.lpi = parseInt(e.target.value, 10);
-                    dom.valLPI.textContent = `${state.print.lpi} LPI`;
-                    updateCalculations();
-                    updateLensOverlay();
-                });
-
-                dom.simulatorWrapper.addEventListener('mousemove', handlePointerTracking);
-                
-                const handleTouch = (e) => {
-                    if (e.touches && e.touches[0]) {
-                        e.preventDefault();
-                        handlePointerTracking(e.touches[0]);
-                    }
-                };
-                dom.simulatorWrapper.addEventListener('touchstart', handleTouch, { passive: false });
-                dom.simulatorWrapper.addEventListener('touchmove', handleTouch, { passive: false });
-
-                dom.btnGenerate.addEventListener('click', executeInterlacedRender);
-                if (dom.btnGenerateSticky) dom.btnGenerateSticky.addEventListener('click', executeInterlacedRender);
-                dom.btnTriggerRenderInside.addEventListener('click', executeInterlacedRender);
-                dom.btnDownload.addEventListener('click', downloadInterlacedPNG);
-                dom.btnDownloadTop.addEventListener('click', downloadInterlacedPNG);
-                dom.tabSim.addEventListener('click', () => switchTab('sim'));
-                dom.tabOutput.addEventListener('click', () => switchTab('output'));
-                dom.btnResetStudio.addEventListener('click', resetStudio);
             }
 
-            function setSimMode(mode) {
-                state.simulation.mode = mode;
-                
-                [dom.modePointer, dom.modeLoop, dom.modeTilt].forEach(btn => {
-                    btn.className = 'sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 font-medium transition text-center';
-                });
-
-                dom.loopSpeedContainer.classList.add('hidden');
-                stopAnimation();
-
-                if (mode === 'pointer') {
-                    dom.modePointer.className = 'sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition text-center';
-                    dom.gyroNotice.classList.add('hidden');
-                } else if (mode === 'loop') {
-                    dom.modeLoop.className = 'sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition text-center';
-                    dom.gyroNotice.classList.add('hidden');
-                    dom.loopSpeedContainer.classList.remove('hidden');
-                    startAnimation();
-                } else if (mode === 'tilt') {
-                    dom.modeTilt.className = 'sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition text-center';
-                    dom.gyroNotice.classList.remove('hidden');
-                    startTiltSensor();
-                }
+            function setupMobileNav() {
+                dom.mobileTabUpload.addEventListener('click', () => switchMobileTab('upload'));
+                dom.mobileTabMockup.addEventListener('click', () => switchMobileTab('mockup'));
             }
 
-            let isTiltListening = false;
-            let smoothAnimId = null;
-
-            function startTiltSensor() {
-                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    DeviceOrientationEvent.requestPermission().then(permissionState => {
-                        if (permissionState === 'granted') bindTilt();
-                    }).catch(() => bindTilt());
+            function switchMobileTab(tab) {
+                if (tab === 'upload') {
+                    dom.configPanel.classList.remove('hidden');
+                    dom.mockupSection.classList.add('hidden');
+                    dom.mobileTabUpload.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition';
+                    dom.mobileTabMockup.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition flex items-center justify-center space-x-1';
                 } else {
-                    bindTilt();
+                    dom.configPanel.classList.add('hidden');
+                    dom.mockupSection.classList.remove('hidden');
+                    dom.mockupSection.classList.add('flex');
+                    dom.mobileTabMockup.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition flex items-center justify-center space-x-1';
+                    dom.mobileTabUpload.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition';
                 }
             }
 
-            function bindTilt() {
-                if (isTiltListening) return;
-                window.addEventListener('deviceorientation', handleDeviceTilt, true);
-                isTiltListening = true;
-                startTiltSmoothingLoop();
-            }
+            // Real Optical Gyroscope Device Motion
+            function setupGyroscope() {
+                window.addEventListener('deviceorientation', (e) => {
+                    const gamma = e.gamma || 0; // Tilt left/right
+                    const range = 12;
+                    const normalized = (gamma + range) / (range * 2);
+                    state.targetPosition = Math.max(0.0, Math.min(1.0, normalized));
+                }, true);
 
-            function handleDeviceTilt(e) {
-                if (state.simulation.mode !== 'tilt') return;
-
-                let tiltAngle = 0;
-                if (state.simulation.direction === 'vertical') {
-                    tiltAngle = e.gamma || 0;
-                } else {
-                    tiltAngle = (e.beta || 45) - 45;
+                function loop() {
+                    state.position += (state.targetPosition - state.position) * 0.25;
+                    renderPreview();
+                    requestAnimationFrame(loop);
                 }
-
-                const maxTilt = 12;
-                const normalized = (tiltAngle + maxTilt) / (maxTilt * 2);
-                state.simulation.targetPosition = Math.max(0.0, Math.min(1.0, normalized));
+                requestAnimationFrame(loop);
             }
 
-            function startTiltSmoothingLoop() {
-                if (smoothAnimId) cancelAnimationFrame(smoothAnimId);
-
-                function smoothLoop() {
-                    if (state.simulation.mode === 'tilt') {
-                        state.simulation.position += (state.simulation.targetPosition - state.simulation.position) * 0.28;
-                        updateTrackerUI();
-                        renderSimulator();
-                    }
-                    smoothAnimId = requestAnimationFrame(smoothLoop);
-                }
-                smoothAnimId = requestAnimationFrame(smoothLoop);
-            }
-
-            function setDirection(dir) {
-                state.simulation.direction = dir;
-                if (dir === 'vertical') {
-                    dom.dirVertical.className = 'px-2 py-0.5 rounded text-xs font-semibold bg-white text-indigo-700 shadow-sm transition';
-                    dom.dirHorizontal.className = 'px-2 py-0.5 rounded text-xs font-medium text-slate-600 hover:text-slate-900 transition';
-                    dom.lensOverlay.className = 'absolute inset-0 pointer-events-none transition-opacity duration-200 lens-overlay-vertical';
-                    dom.gyroNoticeText.textContent = '📱 Tilt Phone Left ↔ Right to Flip';
-                } else {
-                    dom.dirHorizontal.className = 'px-2 py-0.5 rounded text-xs font-semibold bg-white text-indigo-700 shadow-sm transition';
-                    dom.dirVertical.className = 'px-2 py-0.5 rounded text-xs font-medium text-slate-600 hover:text-slate-900 transition';
-                    dom.lensOverlay.className = 'absolute inset-0 pointer-events-none transition-opacity duration-200 lens-overlay-horizontal';
-                    dom.gyroNoticeText.textContent = '📱 Tilt Phone Forward ↔ Backward to Flip';
-                }
-                updateLensOverlay();
-                renderSimulator();
-            }
-
-            function updateCalculations() {
-                const stripeWidth = state.print.dpi / (state.print.lpi * 2);
-                const pitchWidth = state.print.dpi / state.print.lpi;
-                dom.badgeStripeWidth.textContent = `${stripeWidth.toFixed(2)} px`;
-                dom.badgePitchWidth.textContent = `${pitchWidth.toFixed(2)} px`;
-            }
-
-            function updateLensOverlay() {
-                const visualPitch = Math.max(3, Math.min(16, Math.round(200 / state.print.lpi * 2.2)));
-                dom.lensOverlay.style.setProperty('--lens-pitch', `${visualPitch}px`);
-            }
-
-            function handlePointerTracking(e) {
-                const rect = dom.simulatorWrapper.getBoundingClientRect();
-                let ratio = 0.5;
-
-                if (state.simulation.direction === 'vertical') {
-                    ratio = (e.clientX - rect.left) / rect.width;
-                } else {
-                    ratio = (e.clientY - rect.top) / rect.height;
-                }
-
-                state.simulation.position = Math.max(0.0, Math.min(1.0, ratio));
-                state.simulation.targetPosition = state.simulation.position;
-                updateTrackerUI();
-                renderSimulator();
-            }
-
-            let lastTimestamp = 0;
-            function startAnimation() {
-                stopAnimation();
-                lastTimestamp = performance.now();
-
-                function loop(ts) {
-                    const dt = (ts - lastTimestamp) / 1000;
-                    lastTimestamp = ts;
-
-                    state.simulation.position += dt * 0.75 * state.simulation.speed * state.simulation.loopDirection;
-
-                    if (state.simulation.position >= 1.0) {
-                        state.simulation.position = 1.0;
-                        state.simulation.loopDirection = -1;
-                    } else if (state.simulation.position <= 0.0) {
-                        state.simulation.position = 0.0;
-                        state.simulation.loopDirection = 1;
-                    }
-
-                    updateTrackerUI();
-                    renderSimulator();
-                    state.simulation.animFrameId = requestAnimationFrame(loop);
-                }
-                state.simulation.animFrameId = requestAnimationFrame(loop);
-            }
-
-            function stopAnimation() {
-                if (state.simulation.animFrameId) {
-                    cancelAnimationFrame(state.simulation.animFrameId);
-                    state.simulation.animFrameId = null;
-                }
-            }
-
-            function updateTrackerUI() {
-                const percent = Math.round(state.simulation.position * 100);
-                dom.viewTrackerBar.style.width = `${percent}%`;
-                dom.trackerPercent.textContent = `${percent}%`;
-
-                if (percent < 45) dom.activeViewIndicator.textContent = 'Anchor A';
-                else if (percent > 55) dom.activeViewIndicator.textContent = 'View B';
-                else dom.activeViewIndicator.textContent = 'Transition';
-            }
-
-            function renderSimulator() {
+            function renderPreview() {
                 if (!state.imageA || !state.imageB) return;
 
-                const targetW = state.imageA.width;
-                const targetH = state.imageA.height;
+                const w = dom.liveCanvas.width;
+                const h = dom.liveCanvas.height;
 
-                simCtx.clearRect(0, 0, targetW, targetH);
-                simCtx.globalAlpha = 1.0;
-                simCtx.drawImage(state.imageA.img, 0, 0, targetW, targetH);
+                ctx.clearRect(0, 0, w, h);
+                ctx.globalAlpha = 1.0;
+                ctx.drawImage(state.imageA.img, 0, 0, w, h);
 
-                const pos = state.simulation.position;
-                const halfSoftness = state.simulation.transitionSoftness / 2;
-                const startT = 0.5 - halfSoftness;
-                const endT = 0.5 + halfSoftness;
-
+                const t = state.position;
                 let alphaB = 0;
-                if (pos <= startT) alphaB = 0;
-                else if (pos >= endT) alphaB = 1;
-                else alphaB = (pos - startT) / (endT - startT);
+                if (t <= 0.48) alphaB = 0;
+                else if (t >= 0.52) alphaB = 1;
+                else alphaB = (t - 0.48) / 0.04;
 
                 if (alphaB > 0) {
-                    simCtx.save();
-                    simCtx.globalAlpha = alphaB;
-                    drawTransformedImage(simCtx, state.imageB.img, targetW, targetH, state.fitMode, state.alignment);
-                    simCtx.restore();
-                }
-            }
-
-            function drawTransformedImage(ctx, img, targetW, targetH, fitMode, alignment) {
-                const srcW = img.naturalWidth;
-                const srcH = img.naturalHeight;
-
-                ctx.save();
-                ctx.translate(alignment.offsetX, alignment.offsetY);
-                ctx.translate(targetW / 2, targetH / 2);
-                if (alignment.rotation !== 0) ctx.rotate((alignment.rotation * Math.PI) / 180);
-                if (alignment.scale !== 1.0) ctx.scale(alignment.scale, alignment.scale);
-
-                let drawW = targetW;
-                let drawH = targetH;
-                let drawX = -targetW / 2;
-                let drawY = -targetH / 2;
-
-                if (fitMode === 'stretch') {
-                    ctx.drawImage(img, drawX, drawY, drawW, drawH);
-                } else {
-                    const targetAspect = targetW / targetH;
-                    const srcAspect = srcW / srcH;
-
-                    if (fitMode === 'cover') {
-                        if (srcAspect > targetAspect) {
-                            drawH = targetH;
-                            drawW = targetH * srcAspect;
-                        } else {
-                            drawW = targetW;
-                            drawH = targetW / srcAspect;
-                        }
-                    } else if (fitMode === 'contain') {
-                        if (srcAspect > targetAspect) {
-                            drawW = targetW;
-                            drawH = targetW / srcAspect;
-                        } else {
-                            drawH = targetH;
-                            drawW = targetH * srcAspect;
-                        }
-                    }
-                    drawX = -drawW / 2;
-                    drawY = -drawH / 2;
-                    ctx.drawImage(img, drawX, drawY, drawW, drawH);
-                }
-                ctx.restore();
-            }
-
-            async function executeInterlacedRender() {
-                if (!state.imageA || !state.imageB || state.render.isRendering) return;
-
-                state.render.isRendering = true;
-                showProgress(true, 'Preparing Canvases...', 'Rasterizing source layers', 10);
-                await yieldThread();
-
-                const targetW = state.imageA.width;
-                const targetH = state.imageA.height;
-                const dpi = state.print.dpi;
-                const lpi = state.print.lpi;
-                const isVertical = (state.simulation.direction === 'vertical');
-
-                const canvasA = document.createElement('canvas');
-                canvasA.width = targetW;
-                canvasA.height = targetH;
-                const ctxA = canvasA.getContext('2d', { willReadFrequently: true });
-                ctxA.drawImage(state.imageA.img, 0, 0, targetW, targetH);
-
-                const canvasB = document.createElement('canvas');
-                canvasB.width = targetW;
-                canvasB.height = targetH;
-                const ctxB = canvasB.getContext('2d', { willReadFrequently: true });
-                drawTransformedImage(ctxB, state.imageB.img, targetW, targetH, state.fitMode, state.alignment);
-
-                showProgress(true, 'Allocating Memory...', 'Extracting 32-bit pixel buffers', 25);
-                await yieldThread();
-
-                const imgDataA = ctxA.getImageData(0, 0, targetW, targetH);
-                const imgDataB = ctxB.getImageData(0, 0, targetW, targetH);
-                const bufA = new Uint32Array(imgDataA.data.buffer);
-                const bufB = new Uint32Array(imgDataB.data.buffer);
-
-                const outputCanvas = dom.interlacedOutputCanvas;
-                outputCanvas.width = targetW;
-                outputCanvas.height = targetH;
-                const outputCtx = outputCanvas.getContext('2d', { willReadFrequently: true });
-                const outputImgData = outputCtx.createImageData(targetW, targetH);
-                const bufOut = new Uint32Array(outputImgData.data.buffer);
-
-                showProgress(true, 'Optical Interlacing...', 'Interleaving lenticular pixel columns', 30);
-                await yieldThread();
-
-                if (isVertical) {
-                    const colOwnerIsB = new Uint8Array(targetW);
-                    for (let x = 0; x < targetW; x++) {
-                        const stripeIdx = Math.floor((x * lpi * 2) / dpi);
-                        colOwnerIsB[x] = (stripeIdx % 2 === 1) ? 1 : 0;
-                    }
-
-                    const CHUNK_ROWS = 64;
-                    for (let startY = 0; startY < targetH; startY += CHUNK_ROWS) {
-                        const endY = Math.min(startY + CHUNK_ROWS, targetH);
-                        for (let y = startY; y < endY; y++) {
-                            const rowOffset = y * targetW;
-                            for (let x = 0; x < targetW; x++) {
-                                const idx = rowOffset + x;
-                                bufOut[idx] = colOwnerIsB[x] ? bufB[idx] : bufA[idx];
-                            }
-                        }
-                        const progress = 30 + Math.round((endY / targetH) * 60);
-                        showProgress(true, 'Interlacing Columns...', `Processed ${endY} of ${targetH} scanlines`, progress);
-                        await yieldThread();
-                    }
-                } else {
-                    const CHUNK_ROWS = 64;
-                    for (let startY = 0; startY < targetH; startY += CHUNK_ROWS) {
-                        const endY = Math.min(startY + CHUNK_ROWS, targetH);
-                        for (let y = startY; y < endY; y++) {
-                            const stripeIdx = Math.floor((y * lpi * 2) / dpi);
-                            const isB = (stripeIdx % 2 === 1);
-                            const rowOffset = y * targetW;
-                            if (isB) bufOut.set(bufB.subarray(rowOffset, rowOffset + targetW), rowOffset);
-                            else bufOut.set(bufA.subarray(rowOffset, rowOffset + targetW), rowOffset);
-                        }
-                        const progress = 30 + Math.round((endY / targetH) * 60);
-                        showProgress(true, 'Interlacing Rows...', `Processed ${endY} of ${targetH} scanlines`, progress);
-                        await yieldThread();
-                    }
+                    ctx.save();
+                    ctx.globalAlpha = alphaB;
+                    ctx.drawImage(state.imageB.img, 0, 0, w, h);
+                    ctx.restore();
                 }
 
-                outputCtx.putImageData(outputImgData, 0, 0);
-
-                const stripeWidth = dpi / (lpi * 2);
-                dom.outStatsResolution.textContent = `${targetW} × ${targetH} px`;
-                dom.outStatsSpecs.textContent = `${dpi} DPI • ${lpi} LPI • Stripe: ${stripeWidth.toFixed(2)}px`;
-
-                state.render.generatedCanvas = outputCanvas;
-                dom.outputReadyBadge.classList.remove('hidden');
-                dom.mobileBadgeOutputReady.classList.remove('hidden');
-
-                dom.outputEmptyPrompt.classList.add('hidden');
-                dom.outputContentContainer.classList.remove('hidden');
-                dom.outputContentContainer.classList.add('flex');
-
-                // Display Top Quick-Download button
-                dom.btnDownloadTop.classList.remove('hidden');
-                dom.btnDownloadTop.classList.add('flex');
-
-                showProgress(true, 'Complete!', 'Interlaced result ready for export', 100);
-                await new Promise(r => setTimeout(r, 250));
-
-                showProgress(false);
-                state.render.isRendering = false;
-                switchTab('output');
-
-                if (window.innerWidth < 1024) {
-                    switchMobileView('preview');
-                }
+                dom.activeAngleText.textContent = t < 0.5 ? 'Showing Photo 1' : 'Showing Photo 2';
             }
 
-            function downloadInterlacedPNG() {
-                if (!state.render.generatedCanvas) return;
-                const targetW = state.render.generatedCanvas.width;
-                const targetH = state.render.generatedCanvas.height;
-                const filename = `lenticular-interlaced-${targetW}x${targetH}-${state.print.dpi}dpi-${state.print.lpi}lpi.png`;
-
-                state.render.generatedCanvas.toBlob((blob) => {
-                    if (!blob) return;
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.download = filename;
-                    link.href = url;
-                    link.click();
-                    setTimeout(() => URL.revokeObjectURL(url), 5000);
-                }, 'image/png');
-            }
-
-            function switchTab(tab) {
-                state.activeTab = tab;
-                if (tab === 'sim') {
-                    dom.tabSim.className = 'px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 transition';
-                    dom.tabOutput.className = 'px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 border border-transparent transition flex items-center space-x-1';
-                    dom.btnDownloadTop.classList.add('hidden');
-                    dom.btnDownloadTop.classList.remove('flex');
-                    if (state.imageA && state.imageB) {
-                        dom.simulatorWrapper.classList.remove('hidden');
-                        dom.emptyState.classList.add('hidden');
-                    } else {
-                        dom.emptyState.classList.remove('hidden');
-                        dom.simulatorWrapper.classList.add('hidden');
+            // Order Modal & WhatsApp Generator
+            function setupOrderModal() {
+                const openModal = () => {
+                    if (!state.imageA || !state.imageB) {
+                        alert('Please upload your 2 photos first to see your custom preview before ordering!');
+                        return;
                     }
-                    dom.outputWrapper.classList.add('hidden');
-                    dom.outputWrapper.classList.remove('flex');
-                } else {
-                    dom.tabOutput.className = 'px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 transition flex items-center space-x-1';
-                    dom.tabSim.className = 'px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 border border-transparent transition';
-                    dom.simulatorWrapper.classList.add('hidden');
-                    dom.emptyState.classList.add('hidden');
-                    dom.outputWrapper.classList.remove('hidden');
-                    dom.outputWrapper.classList.add('flex');
+                    dom.orderProductType.value = state.product === 'phone' ? '📱 Lenticular Flip Phone Case' : '🖼️ Lenticular Flip Picture Frame';
+                    dom.phoneModelGroup.style.display = state.product === 'phone' ? 'block' : 'none';
+                    dom.orderModal.classList.remove('hidden');
+                };
 
-                    if (!state.render.generatedCanvas) {
-                        dom.outputEmptyPrompt.classList.remove('hidden');
-                        dom.outputContentContainer.classList.add('hidden');
-                        dom.btnDownloadTop.classList.add('hidden');
-                        dom.btnDownloadTop.classList.remove('flex');
-                    } else {
-                        dom.outputEmptyPrompt.classList.add('hidden');
-                        dom.outputContentContainer.classList.remove('hidden');
-                        dom.outputContentContainer.classList.add('flex');
-                        dom.btnDownloadTop.classList.remove('hidden');
-                        dom.btnDownloadTop.classList.add('flex');
-                    }
-                }
-            }
+                dom.btnOpenOrder.addEventListener('click', openModal);
+                dom.btnStickyOrder.addEventListener('click', openModal);
+                dom.btnDirectOrder.addEventListener('click', openModal);
+                dom.btnCloseOrder.addEventListener('click', () => dom.orderModal.classList.add('hidden'));
 
-            function yieldThread() {
-                return new Promise(resolve => setTimeout(resolve, 0));
-            }
+                dom.orderForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const name = document.getElementById('custName').value.trim();
+                    const phone = document.getElementById('custPhone').value.trim();
+                    const phoneModel = document.getElementById('custPhoneModel').value.trim();
+                    const address = document.getElementById('custAddress').value.trim();
+                    const product = dom.orderProductType.value;
 
-            function showProgress(visible, title = '', subtitle = '', percent = 0) {
-                if (visible) {
-                    dom.renderOverlay.classList.remove('hidden');
-                    if (title) document.getElementById('renderProgressTitle').textContent = title;
-                    if (subtitle) document.getElementById('renderProgressSubtitle').textContent = subtitle;
-                    dom.renderProgressBar.style.width = `${percent}%`;
-                    dom.renderProgressPercent.textContent = `${percent}%`;
-                } else {
-                    dom.renderOverlay.classList.add('hidden');
-                }
-            }
+                    const message = `🛍️ *NEW LENTICULAR ORDER*\n\n` +
+                        `*Customer:* ${name}\n` +
+                        `*Phone:* ${phone}\n` +
+                        `*Product:* ${product}\n` +
+                        (state.product === 'phone' ? `*Phone Model:* ${phoneModel}\n` : '') +
+                        `*Delivery Address:* ${address}\n\n` +
+                        `_I have prepared my 2 flip photos ready for printing!_`;
 
-            function setupHelpModal() {
-                dom.btnOpenHelp.addEventListener('click', () => dom.helpModal.classList.remove('hidden'));
-                dom.btnCloseHelp.addEventListener('click', () => dom.helpModal.classList.add('hidden'));
-                dom.btnCloseHelpFooter.addEventListener('click', () => dom.helpModal.classList.add('hidden'));
-                dom.helpModal.addEventListener('click', (e) => {
-                    if (e.target === dom.helpModal) dom.helpModal.classList.add('hidden');
+                    const whatsappUrl = `https://wa.me/${BUSINESS_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappUrl, '_blank');
+                    dom.orderModal.classList.add('hidden');
                 });
             }
 
-            function resetStudio() {
-                if (!confirm('Reset all loaded images and settings?')) return;
-                stopAnimation();
+            // Hidden Print Master File Generator for you (Store Owner)
+            function setupPrintButton() {
+                dom.btnGeneratePrint.addEventListener('click', () => {
+                    if (!state.imageA || !state.imageB) {
+                        alert('Upload 2 images first!');
+                        return;
+                    }
 
-                if (state.imageA && state.imageA.url) URL.revokeObjectURL(state.imageA.url);
-                if (state.imageB && state.imageB.url) URL.revokeObjectURL(state.imageB.url);
+                    const dpi = parseInt(dom.selectDPI.value, 10);
+                    const lpi = parseInt(dom.inputLPI.value, 10);
+                    const w = state.imageA.img.naturalWidth;
+                    const h = state.imageA.img.naturalHeight;
 
-                state.imageA = null;
-                state.imageB = null;
-                state.fitMode = 'cover';
-                state.alignment = { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 };
-                state.simulation.mode = isMobileDevice ? 'tilt' : 'pointer';
-                state.simulation.direction = 'vertical';
-                state.simulation.position = 0.5;
-                state.simulation.targetPosition = 0.5;
-                state.simulation.speed = 1.0;
-                state.simulation.transitionSoftness = 0.04;
-                state.simulation.showLens = true;
-                state.print.dpi = 600;
-                state.print.lpi = 75;
-                state.render.isRendering = false;
-                state.render.generatedCanvas = null;
+                    // Generate real pixel-slice interlacing
+                    const offCanvas = document.createElement('canvas');
+                    offCanvas.width = w;
+                    offCanvas.height = h;
+                    const offCtx = offCanvas.getContext('2d');
 
-                dom.fileInputA.value = '';
-                dom.fileInputB.value = '';
-                updateDropzoneUI('imageA');
-                updateDropzoneUI('imageB');
+                    const canvasA = document.createElement('canvas');
+                    canvasA.width = w; canvasA.height = h;
+                    const ctxA = canvasA.getContext('2d');
+                    ctxA.drawImage(state.imageA.img, 0, 0, w, h);
+                    const imgDataA = ctxA.getImageData(0, 0, w, h);
+                    const bufA = new Uint32Array(imgDataA.data.buffer);
 
-                dom.sliderOffsetX.value = 0;
-                dom.sliderOffsetY.value = 0;
-                dom.sliderScale.value = 1.0;
-                dom.sliderRotation.value = 0;
-                dom.valOffsetX.textContent = '0px';
-                dom.valOffsetY.textContent = '0px';
-                dom.valScale.textContent = '1.00x';
-                dom.valRotation.textContent = '0.0°';
+                    const canvasB = document.createElement('canvas');
+                    canvasB.width = w; canvasB.height = h;
+                    const ctxB = canvasB.getContext('2d');
+                    ctxB.drawImage(state.imageB.img, 0, 0, w, h);
+                    const imgDataB = ctxB.getImageData(0, 0, w, h);
+                    const bufB = new Uint32Array(imgDataB.data.buffer);
 
-                dom.selectDPI.value = '600';
-                dom.sliderLPI.value = 75;
-                dom.valLPI.textContent = '75 LPI';
-                dom.sliderTransition.value = 4;
-                dom.valTransition.textContent = '4%';
-                dom.toggleLens.checked = true;
+                    const outImgData = offCtx.createImageData(w, h);
+                    const bufOut = new Uint32Array(outImgData.data.buffer);
 
-                setSimMode(isMobileDevice ? 'tilt' : 'pointer');
-                setDirection('vertical');
-                updateCalculations();
-                onImagesUpdated();
+                    const colOwner = new Uint8Array(w);
+                    for (let x = 0; x < w; x++) {
+                        const stripeIdx = Math.floor((x * lpi * 2) / dpi);
+                        colOwner[x] = (stripeIdx % 2 === 1) ? 1 : 0;
+                    }
 
-                dom.outputReadyBadge.classList.add('hidden');
-                dom.mobileBadgeOutputReady.classList.add('hidden');
-                dom.btnDownloadTop.classList.add('hidden');
-                dom.outputEmptyPrompt.classList.remove('hidden');
-                dom.outputContentContainer.classList.add('hidden');
-                switchTab('sim');
+                    for (let y = 0; y < h; y++) {
+                        const rowOffset = y * w;
+                        for (let x = 0; x < w; x++) {
+                            const idx = rowOffset + x;
+                            bufOut[idx] = colOwner[x] ? bufB[idx] : bufA[idx];
+                        }
+                    }
 
-                const outCtx = dom.interlacedOutputCanvas.getContext('2d');
-                outCtx.clearRect(0, 0, dom.interlacedOutputCanvas.width, dom.interlacedOutputCanvas.height);
+                    offCtx.putImageData(outImgData, 0, 0);
+
+                    offCanvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.download = `print-ready-interlaced-${w}x${h}-${dpi}dpi-${lpi}lpi.png`;
+                        a.href = url;
+                        a.click();
+                        setTimeout(() => URL.revokeObjectURL(url), 4000);
+                    }, 'image/png');
+                });
             }
 
             init();
