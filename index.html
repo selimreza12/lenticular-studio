@@ -2,8 +2,9 @@
 <html lang="en" class="h-full bg-slate-100 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Lenticular Studio — Print-Ready Interlacing Engine & Simulator</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,10 +28,15 @@
         }
     </script>
     <style>
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        /* Smooth Mobile Scroll */
+        #controlsPanel {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         input[type="range"] {
             -webkit-appearance: none;
@@ -47,10 +53,6 @@
             cursor: pointer;
             box-shadow: 0 1px 4px rgba(79, 70, 229, 0.4);
             border: 2px solid #ffffff;
-            transition: transform 0.1s ease;
-        }
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
         }
 
         .lens-overlay-vertical {
@@ -78,17 +80,23 @@
         }
     </style>
 </head>
-<body class="h-full flex flex-col overflow-hidden bg-slate-100 font-sans text-xs select-none">
+<body class="h-[100dvh] flex flex-col overflow-hidden bg-slate-100 font-sans text-xs select-none">
 
     <!-- Header Navigation -->
     <header class="h-13 py-2 border-b border-studio-border bg-white px-3 sm:px-6 flex items-center justify-between z-30 shrink-0 shadow-sm">
         <div class="flex items-center space-x-2 sm:space-x-3 overflow-hidden">
-            <div class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 shrink-0">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+            <!-- Distinct Optical Prism / Lens App Logo (No more confusing 3-line hamburger) -->
+            <div class="flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-600 text-white shadow-sm shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                    <line x1="8" y1="3" x2="8" y2="21"></line>
+                    <line x1="12" y1="3" x2="12" y2="21"></line>
+                    <line x1="16" y1="3" x2="16" y2="21"></line>
+                </svg>
             </div>
             <div class="truncate">
                 <h1 class="text-xs sm:text-base font-bold text-slate-900 leading-tight truncate">Lenticular Studio</h1>
-                <p class="hidden md:block text-[11px] text-slate-500 truncate">Interactive Lenticular Simulator & Print Interlacing Engine</p>
+                <p class="hidden md:block text-[11px] text-slate-500 truncate">Print-Ready Interlacing & Gyroscope Motion</p>
             </div>
         </div>
 
@@ -110,23 +118,23 @@
         </div>
     </header>
 
-    <!-- Mobile Navigation Tab Bar (visible only on screens < lg) -->
+    <!-- Mobile View Bar -->
     <div class="lg:hidden flex border-b border-studio-border bg-white px-2 py-1.5 gap-1.5 shrink-0 z-20">
         <button id="mobileTabControls" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition">
-            ⚙️ Controls
+            ⚙️ Controls & Upload
         </button>
         <button id="mobileTabPreview" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition flex items-center justify-center space-x-1">
-            <span>👁️ Preview</span>
+            <span>👁️ 3D Preview</span>
             <span id="mobileBadgeOutputReady" class="hidden w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
         </button>
     </div>
 
-    <!-- Main Workspace -->
-    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+    <!-- Main Workspace with Mobile Scroll Fix (min-h-0) -->
+    <main class="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden relative">
         
-        <!-- Controls Sidebar -->
-        <aside id="controlsPanel" class="w-full lg:w-[420px] shrink-0 border-r border-studio-border bg-white flex flex-col overflow-y-auto z-10">
-            <div class="p-3.5 sm:p-4 space-y-3.5 sm:space-y-4">
+        <!-- Controls Sidebar with Native Mobile Touch Scroll and Bottom Spacing -->
+        <aside id="controlsPanel" class="w-full lg:w-[420px] shrink-0 border-r border-studio-border bg-white flex flex-col overflow-y-auto min-h-0 flex-1 z-10 relative">
+            <div class="p-3.5 sm:p-4 space-y-3.5 sm:space-y-4 pb-36">
 
                 <!-- 1. Source Views -->
                 <div class="space-y-2.5">
@@ -141,12 +149,12 @@
                     <!-- Dropzone A -->
                     <div id="dropzoneA" class="group relative rounded-xl border-2 border-dashed border-studio-border bg-slate-50 p-2.5 sm:p-3 transition hover:border-indigo-400 hover:bg-indigo-50/30">
                         <input type="file" id="fileInputA" accept="image/png, image/jpeg, image/webp" class="hidden">
-                        <div id="emptyA" class="flex flex-col items-center justify-center py-2 cursor-pointer">
+                        <div id="emptyA" class="flex flex-col items-center justify-center py-2.5 cursor-pointer">
                             <div class="p-1.5 sm:p-2 rounded-full bg-white shadow-sm border border-slate-200 text-indigo-600 group-hover:scale-105 transition">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                             </div>
                             <span class="mt-1.5 text-xs font-semibold text-slate-800">Image A — View 1 (Anchor)</span>
-                            <span class="text-[11px] text-slate-500">Tap or drag image</span>
+                            <span class="text-[11px] text-slate-500">Tap to upload image</span>
                         </div>
                         <div id="loadedA" class="hidden flex items-center justify-between">
                             <div class="flex items-center space-x-2.5 overflow-hidden">
@@ -160,8 +168,8 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-1 shrink-0">
-                                <button id="btnReplaceA" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 transition" title="Replace"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></button>
-                                <button id="btnRemoveA" class="p-1.5 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition" title="Remove"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                <button id="btnReplaceA" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></button>
+                                <button id="btnRemoveA" class="p-1.5 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                             </div>
                         </div>
                     </div>
@@ -169,12 +177,12 @@
                     <!-- Dropzone B -->
                     <div id="dropzoneB" class="group relative rounded-xl border-2 border-dashed border-studio-border bg-slate-50 p-2.5 sm:p-3 transition hover:border-indigo-400 hover:bg-indigo-50/30">
                         <input type="file" id="fileInputB" accept="image/png, image/jpeg, image/webp" class="hidden">
-                        <div id="emptyB" class="flex flex-col items-center justify-center py-2 cursor-pointer">
+                        <div id="emptyB" class="flex flex-col items-center justify-center py-2.5 cursor-pointer">
                             <div class="p-1.5 sm:p-2 rounded-full bg-white shadow-sm border border-slate-200 text-indigo-600 group-hover:scale-105 transition">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                             </div>
                             <span class="mt-1.5 text-xs font-semibold text-slate-800">Image B — View 2</span>
-                            <span class="text-[11px] text-slate-500">Tap or drag image</span>
+                            <span class="text-[11px] text-slate-500">Tap to upload image</span>
                         </div>
                         <div id="loadedB" class="hidden flex items-center justify-between">
                             <div class="flex items-center space-x-2.5 overflow-hidden">
@@ -188,8 +196,8 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-1 shrink-0">
-                                <button id="btnReplaceB" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 transition" title="Replace"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></button>
-                                <button id="btnRemoveB" class="p-1.5 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition" title="Remove"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                <button id="btnReplaceB" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></button>
+                                <button id="btnRemoveB" class="p-1.5 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                             </div>
                         </div>
                     </div>
@@ -203,9 +211,9 @@
                     </div>
 
                     <div class="grid grid-cols-3 gap-1.5">
-                        <button class="fit-btn py-1 text-xs rounded-lg font-medium border border-indigo-600 bg-indigo-50 text-indigo-700 transition" data-fit="cover">Cover</button>
-                        <button class="fit-btn py-1 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 transition" data-fit="contain">Contain</button>
-                        <button class="fit-btn py-1 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 transition" data-fit="stretch">Stretch</button>
+                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-indigo-600 bg-indigo-50 text-indigo-700 transition" data-fit="cover">Cover</button>
+                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 transition" data-fit="contain">Contain</button>
+                        <button class="fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 transition" data-fit="stretch">Stretch</button>
                     </div>
 
                     <div class="pt-2 border-t border-studio-border space-y-2">
@@ -233,20 +241,20 @@
                     </div>
                 </div>
 
-                <!-- 3. Simulation & Gyroscope Mode -->
+                <!-- 3. Simulation & Sensor Controls -->
                 <div class="p-3 rounded-xl bg-slate-50 border border-studio-border space-y-2.5">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-500">3. Simulation & Sensor</span>
-                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">Real Physics</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold animate-pulse">Auto-Motion Ready</span>
                     </div>
 
-                    <!-- 3 Simulation Mode Toggles including Phone Tilt Gyro -->
+                    <!-- 3 Simulation Mode Toggles (Gyro is active by default on mobile) -->
                     <div class="grid grid-cols-3 gap-1.5 text-xs">
-                        <button id="modePointer" class="sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition text-center">Swipe</button>
-                        <button id="modeLoop" class="sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 font-medium transition text-center">Auto-Loop</button>
-                        <button id="modeTilt" class="sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 font-medium transition text-center flex items-center justify-center space-x-0.5" title="Tilt your phone to flip views!">
-                            <span>📱 Gyro</span>
+                        <button id="modeTilt" class="sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition text-center flex items-center justify-center space-x-1" title="Tilt phone to flip">
+                            <span>📱 Tilt Gyro</span>
                         </button>
+                        <button id="modePointer" class="sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 font-medium transition text-center">Swipe</button>
+                        <button id="modeLoop" class="sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 font-medium transition text-center">Auto-Loop</button>
                     </div>
 
                     <div class="flex items-center justify-between text-xs pt-1">
@@ -263,7 +271,7 @@
                     </div>
 
                     <div class="space-y-1">
-                        <div class="flex justify-between text-xs text-slate-500"><span>Softness</span><span id="valTransition" class="font-mono text-slate-700">4%</span></div>
+                        <div class="flex justify-between text-xs text-slate-500"><span>Transition Softness</span><span id="valTransition" class="font-mono text-slate-700">4%</span></div>
                         <input type="range" id="sliderTransition" min="1" max="25" value="4" class="w-full">
                     </div>
 
@@ -275,13 +283,13 @@
                     </div>
                 </div>
 
-                <!-- 4. Print Settings -->
+                <!-- 4. Print Settings (Now fully scrollable and visible) -->
                 <div class="p-3 rounded-xl bg-slate-50 border border-studio-border space-y-2.5">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">4. Interlacing Engine</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">4. Print Interlacing Specs</span>
 
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                            <label class="block text-slate-600 font-medium mb-1">DPI</label>
+                            <label class="block text-slate-600 font-medium mb-1">Printer DPI</label>
                             <select id="selectDPI" class="w-full bg-white border border-studio-border rounded-lg px-2 py-1 text-slate-800 focus:outline-none">
                                 <option value="300">300 DPI</option>
                                 <option value="600" selected>600 DPI</option>
@@ -290,7 +298,7 @@
                         </div>
                         <div>
                             <div class="flex justify-between text-slate-600 font-medium mb-1">
-                                <label>LPI</label>
+                                <label>Lens LPI</label>
                                 <span id="valLPI" class="font-mono text-indigo-700 font-bold">75 LPI</span>
                             </div>
                             <input type="range" id="sliderLPI" min="10" max="100" value="75" class="w-full">
@@ -303,21 +311,29 @@
                     </div>
                 </div>
 
-                <!-- 5. Render Button -->
-                <div class="pt-1 pb-4 lg:pb-0">
-                    <button id="btnGenerate" class="w-full py-2.5 sm:py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold shadow-md shadow-indigo-600/25 transition flex items-center justify-center space-x-2 disabled:opacity-40 disabled:pointer-events-none">
+                <!-- 5. Render Button (Inside Scrollable Content) -->
+                <div class="pt-2">
+                    <button id="btnGenerate" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold shadow-md shadow-indigo-600/25 transition flex items-center justify-center space-x-2 disabled:opacity-40 disabled:pointer-events-none">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                         <span>Generate Interlaced Image</span>
                     </button>
                 </div>
 
             </div>
+
+            <!-- Sticky Quick-Action Bar for Mobile: Always accessible without scrolling! -->
+            <div id="mobileStickyBar" class="lg:hidden sticky bottom-0 inset-x-0 p-2.5 bg-white/95 backdrop-blur-md border-t border-studio-border shadow-lg z-20">
+                <button id="btnGenerateSticky" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold text-xs shadow-md shadow-indigo-600/30 flex items-center justify-center space-x-1.5 disabled:opacity-40 disabled:pointer-events-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span>⚡ Generate Interlaced Image</span>
+                </button>
+            </div>
         </aside>
 
         <!-- Right Workspace Panel -->
-        <section id="previewPanel" class="hidden lg:flex flex-1 flex-col bg-slate-100 overflow-hidden relative">
+        <section id="previewPanel" class="hidden lg:flex flex-1 min-h-0 flex-col bg-slate-100 overflow-hidden relative">
 
-            <!-- Top Tab Bar (Responsive: no overlap at 288px) -->
+            <!-- Top Tab Bar -->
             <div class="h-10 border-b border-studio-border bg-white px-3 sm:px-6 flex items-center justify-between shrink-0 shadow-sm gap-2">
                 <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
                     <button id="tabSim" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 transition">Simulator</button>
@@ -327,7 +343,6 @@
                     </button>
                 </div>
 
-                <!-- Compact Badges on Mobile -->
                 <div class="flex items-center space-x-2 text-[11px] font-mono text-slate-500 overflow-hidden truncate">
                     <span id="canvasDimBadge" class="truncate hidden sm:inline">0 × 0 px</span>
                     <span id="activeViewIndicator" class="font-medium text-slate-700 truncate">Anchor A</span>
@@ -335,7 +350,7 @@
             </div>
 
             <!-- Stage Workspace -->
-            <div class="flex-1 relative flex items-center justify-center p-2 sm:p-6 overflow-hidden" id="stageContainer">
+            <div class="flex-1 min-h-0 relative flex items-center justify-center p-2 sm:p-6 overflow-hidden" id="stageContainer">
 
                 <!-- EMPTY STATE -->
                 <div id="emptyState" class="flex flex-col items-center justify-center text-center max-w-xs sm:max-w-sm p-5 sm:p-8 rounded-2xl border-2 border-dashed border-studio-border bg-white shadow-sm">
@@ -343,7 +358,7 @@
                         <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                     <h2 class="text-xs sm:text-base font-bold text-slate-800">Load Images to Begin</h2>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Upload View A and B in Controls. Tilt your phone or swipe across the canvas to test physical lenticular transitions.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Upload View A and B. Tilt your phone to experience real optical flip motion.</p>
                 </div>
 
                 <!-- SIMULATOR VIEWPORT -->
@@ -352,8 +367,9 @@
                     <div id="lensOverlay" class="absolute inset-0 pointer-events-none transition-opacity duration-200 lens-overlay-vertical"></div>
 
                     <!-- Floating Gyro Tilt Active Notification -->
-                    <div id="gyroNotice" class="hidden absolute top-3 px-3 py-1 rounded-full bg-indigo-600/90 text-white backdrop-blur-md text-[10px] sm:text-xs font-semibold flex items-center space-x-1.5 shadow-md pointer-events-none animate-pulse">
-                        <span>📱 Tilt Phone Left ↔ Right to Flip</span>
+                    <div id="gyroNotice" class="absolute top-3 px-3 py-1 rounded-full bg-indigo-600 text-white backdrop-blur-md text-[10px] sm:text-xs font-semibold flex items-center space-x-1.5 shadow-md pointer-events-none">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span id="gyroNoticeText">📱 Tilt Phone Left ↔ Right to Flip</span>
                     </div>
 
                     <!-- View Angle Indicator -->
@@ -382,13 +398,13 @@
                         </button>
                     </div>
 
-                    <!-- State 2: Active Generated Image (Responsive Stack for 288px) -->
+                    <!-- State 2: Active Generated Image -->
                     <div id="outputContentContainer" class="hidden flex-col items-center justify-center w-full max-w-full">
                         <div class="relative rounded-xl shadow-lg overflow-hidden border border-slate-300 bg-white max-w-full flex items-center justify-center">
                             <canvas id="interlacedOutputCanvas" class="block max-w-full max-h-[calc(100vh-210px)] sm:max-h-[calc(100vh-220px)] object-contain"></canvas>
                         </div>
 
-                        <!-- Responsive Export Bar (Stacks on 288px) -->
+                        <!-- Export Bar -->
                         <div class="mt-2.5 w-full max-w-xs sm:max-w-none sm:w-auto px-3 sm:px-5 py-2 rounded-xl bg-white border border-studio-border shadow-md flex flex-col sm:flex-row items-center justify-between sm:space-x-4 gap-2">
                             <div class="text-[11px] text-center sm:text-left space-y-0.5">
                                 <div class="font-bold text-slate-800" id="outStatsResolution">Resolution: 0 × 0 px</div>
@@ -440,13 +456,13 @@
             </div>
             <div class="p-4 space-y-2.5 text-xs text-slate-600 leading-relaxed overflow-y-auto max-h-[60vh]">
                 <div>
-                    <h4 class="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-1">📱 Gyroscope Mode</h4>
-                    <p>Select <strong>📱 Gyro</strong> mode and tilt your physical phone left/right to experience authentic optical lenticular card flipping.</p>
+                    <h4 class="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-1">📱 Auto Gyroscope Motion</h4>
+                    <p>On mobile phones, motion sensing is active automatically. Simply tilt your phone left and right to flip between View A and View B.</p>
                 </div>
                 <div>
-                    <h4 class="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-1">Formula</h4>
+                    <h4 class="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-1">Optical Stripe Formula</h4>
                     <div class="p-2 rounded bg-slate-100 font-mono text-indigo-900 font-semibold border border-slate-200">
-                        Stripe (px) = DPI / (LPI × 2)
+                        Stripe (px) = Printer DPI / (Lens LPI × 2)
                     </div>
                 </div>
             </div>
@@ -461,13 +477,15 @@
         (() => {
             'use strict';
 
+            const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 1024;
+
             const state = {
                 imageA: null,
                 imageB: null,
                 fitMode: 'cover',
                 alignment: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 },
                 simulation: {
-                    mode: 'pointer', // 'pointer' | 'loop' | 'tilt'
+                    mode: isMobileDevice ? 'tilt' : 'pointer', // Auto-enable Gyro Tilt on mobile!
                     direction: 'vertical',
                     position: 0.5,
                     targetPosition: 0.5,
@@ -521,6 +539,7 @@
                 modeLoop: document.getElementById('modeLoop'),
                 modeTilt: document.getElementById('modeTilt'),
                 gyroNotice: document.getElementById('gyroNotice'),
+                gyroNoticeText: document.getElementById('gyroNoticeText'),
                 dirHorizontal: document.getElementById('dirHorizontal'),
                 dirVertical: document.getElementById('dirVertical'),
                 loopSpeedContainer: document.getElementById('loopSpeedContainer'),
@@ -537,6 +556,7 @@
                 badgePitchWidth: document.getElementById('badgePitchWidth'),
 
                 btnGenerate: document.getElementById('btnGenerate'),
+                btnGenerateSticky: document.getElementById('btnGenerateSticky'),
                 btnTriggerRenderInside: document.getElementById('btnTriggerRenderInside'),
                 btnResetStudio: document.getElementById('btnResetStudio'),
                 statusBadge: document.getElementById('statusBadge'),
@@ -590,6 +610,9 @@
                 setupHelpModal();
                 updateCalculations();
                 renderSimulator();
+
+                // Start motion tracking immediately
+                startTiltSensor();
             }
 
             function setupMobileNav() {
@@ -610,6 +633,11 @@
                     dom.previewPanel.classList.add('flex');
                     dom.mobileTabPreview.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-center transition flex items-center justify-center space-x-1';
                     dom.mobileTabControls.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent text-center transition';
+
+                    // When opening 3D preview on mobile, ensure motion sensor loop is running
+                    if (state.simulation.mode === 'tilt') {
+                        startTiltSmoothingLoop();
+                    }
                 }
             }
 
@@ -626,14 +654,12 @@
                     ['dragenter', 'dragover'].forEach(name => {
                         zone.addEventListener(name, (e) => {
                             e.preventDefault();
-                            e.stopPropagation();
                             zone.classList.add('border-indigo-500', 'bg-indigo-50');
                         });
                     });
                     ['dragleave', 'drop'].forEach(name => {
                         zone.addEventListener(name, (e) => {
                             e.preventDefault();
-                            e.stopPropagation();
                             zone.classList.remove('border-indigo-500', 'bg-indigo-50');
                         });
                     });
@@ -692,6 +718,7 @@
                     updateDropzoneUI(slot);
                     onImagesUpdated();
 
+                    // Auto switch to preview when both uploaded on mobile
                     if (state.imageA && state.imageB && window.innerWidth < 1024) {
                         switchMobileView('preview');
                     }
@@ -758,6 +785,7 @@
                     dom.emptyState.classList.add('hidden');
                     dom.simulatorWrapper.classList.remove('hidden');
                     dom.btnGenerate.disabled = false;
+                    if (dom.btnGenerateSticky) dom.btnGenerateSticky.disabled = false;
                     dom.statusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
                     dom.statusText.textContent = 'Ready';
 
@@ -770,6 +798,7 @@
                     dom.emptyState.classList.remove('hidden');
                     dom.simulatorWrapper.classList.add('hidden');
                     dom.btnGenerate.disabled = true;
+                    if (dom.btnGenerateSticky) dom.btnGenerateSticky.disabled = true;
                     dom.statusDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500';
                     dom.statusText.textContent = state.imageA ? 'Waiting B' : 'Waiting';
                     stopAnimation();
@@ -780,9 +809,9 @@
                 dom.fitBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
                         dom.fitBtns.forEach(b => {
-                            b.className = 'fit-btn py-1 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 transition';
+                            b.className = 'fit-btn py-1.5 text-xs rounded-lg font-medium border border-studio-border bg-white text-slate-600 transition';
                         });
-                        btn.className = 'fit-btn py-1 text-xs rounded-lg font-medium border border-indigo-600 bg-indigo-50 text-indigo-700 transition';
+                        btn.className = 'fit-btn py-1.5 text-xs rounded-lg font-medium border border-indigo-600 bg-indigo-50 text-indigo-700 transition';
                         state.fitMode = btn.dataset.fit;
                         renderSimulator();
                     });
@@ -825,7 +854,6 @@
                     renderSimulator();
                 });
 
-                // Mode Listeners
                 dom.modePointer.addEventListener('click', () => setSimMode('pointer'));
                 dom.modeLoop.addEventListener('click', () => setSimMode('loop'));
                 dom.modeTilt.addEventListener('click', () => setSimMode('tilt'));
@@ -861,10 +889,10 @@
                     updateLensOverlay();
                 });
 
-                // Mouse & Touch Tracking
                 dom.simulatorWrapper.addEventListener('mousemove', handlePointerTracking);
+                
+                // Touch listener allows smooth finger drag as well
                 const handleTouch = (e) => {
-                    if (state.simulation.mode === 'tilt') return;
                     if (e.touches && e.touches[0]) {
                         e.preventDefault();
                         handlePointerTracking(e.touches[0]);
@@ -874,6 +902,7 @@
                 dom.simulatorWrapper.addEventListener('touchmove', handleTouch, { passive: false });
 
                 dom.btnGenerate.addEventListener('click', executeInterlacedRender);
+                if (dom.btnGenerateSticky) dom.btnGenerateSticky.addEventListener('click', executeInterlacedRender);
                 dom.btnTriggerRenderInside.addEventListener('click', executeInterlacedRender);
                 dom.btnDownload.addEventListener('click', downloadInterlacedPNG);
                 dom.tabSim.addEventListener('click', () => switchTab('sim'));
@@ -881,26 +910,22 @@
                 dom.btnResetStudio.addEventListener('click', resetStudio);
             }
 
-            /**
-             * Switch simulation mode: Pointer, Loop, or Real Phone Gyroscope Tilt
-             */
             function setSimMode(mode) {
                 state.simulation.mode = mode;
                 
-                // Reset mode buttons styling
                 [dom.modePointer, dom.modeLoop, dom.modeTilt].forEach(btn => {
                     btn.className = 'sim-mode-btn py-1.5 rounded-lg border border-studio-border bg-white text-slate-600 font-medium transition text-center';
                 });
 
-                dom.gyroNotice.classList.add('hidden');
                 dom.loopSpeedContainer.classList.add('hidden');
                 stopAnimation();
-                stopTiltSensor();
 
                 if (mode === 'pointer') {
                     dom.modePointer.className = 'sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition text-center';
+                    dom.gyroNotice.classList.add('hidden');
                 } else if (mode === 'loop') {
                     dom.modeLoop.className = 'sim-mode-btn py-1.5 rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold transition text-center';
+                    dom.gyroNotice.classList.add('hidden');
                     dom.loopSpeedContainer.classList.remove('hidden');
                     startAnimation();
                 } else if (mode === 'tilt') {
@@ -911,22 +936,17 @@
             }
 
             /**
-             * Physical Gyroscope / Accelerometer Orientation Engine
+             * Natural Mobile Gyroscope Sensing
+             * Seamlessly tracks device orientation without needing to tap the screen
              */
             let isTiltListening = false;
+            let smoothAnimId = null;
+
             function startTiltSensor() {
-                // Request permission if iOS 13+
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     DeviceOrientationEvent.requestPermission().then(permissionState => {
-                        if (permissionState === 'granted') {
-                            bindTilt();
-                        } else {
-                            alert('Motion permission is required to use the gyroscope tilt feature.');
-                            setSimMode('pointer');
-                        }
-                    }).catch(() => {
-                        bindTilt();
-                    });
+                        if (permissionState === 'granted') bindTilt();
+                    }).catch(() => bindTilt());
                 } else {
                     bindTilt();
                 }
@@ -939,47 +959,37 @@
                 startTiltSmoothingLoop();
             }
 
-            function stopTiltSensor() {
-                if (isTiltListening) {
-                    window.removeEventListener('deviceorientation', handleDeviceTilt, true);
-                    isTiltListening = false;
-                }
-                dom.gyroNotice.classList.add('hidden');
-            }
-
             function handleDeviceTilt(e) {
                 if (state.simulation.mode !== 'tilt') return;
 
-                // For vertical lenticules, tilt phone left/right (gamma)
-                // gamma typically ranges from -90 to 90 degrees
                 let tiltAngle = 0;
                 if (state.simulation.direction === 'vertical') {
-                    tiltAngle = e.gamma || 0; // Left-Right rotation in deg
+                    // Left-right tilt angle (gamma)
+                    tiltAngle = e.gamma || 0;
                 } else {
-                    // For horizontal lenticules, tilt phone forward/backward (beta)
-                    // Normal handheld angle is ~45deg, so offset by 45deg
+                    // Forward-back tilt angle (beta) relative to typical handheld 45 deg
                     tiltAngle = (e.beta || 45) - 45;
                 }
 
-                // Map tilt angle [-14deg, +14deg] smoothly to [0.0, 1.0]
-                const maxTilt = 14;
+                // Range of ±12 degrees for quick, natural lenticular card flip
+                const maxTilt = 12;
                 const normalized = (tiltAngle + maxTilt) / (maxTilt * 2);
                 state.simulation.targetPosition = Math.max(0.0, Math.min(1.0, normalized));
             }
 
-            // Smooth interpolation loop so sensor noise doesn't jitter
             function startTiltSmoothingLoop() {
-                function smoothLoop() {
-                    if (state.simulation.mode !== 'tilt') return;
-                    
-                    // Smooth physics lerp
-                    state.simulation.position += (state.simulation.targetPosition - state.simulation.position) * 0.22;
-                    updateTrackerUI();
-                    renderSimulator();
+                if (smoothAnimId) cancelAnimationFrame(smoothAnimId);
 
-                    requestAnimationFrame(smoothLoop);
+                function smoothLoop() {
+                    if (state.simulation.mode === 'tilt') {
+                        // Spring lerp factor for instant responsive flip
+                        state.simulation.position += (state.simulation.targetPosition - state.simulation.position) * 0.28;
+                        updateTrackerUI();
+                        renderSimulator();
+                    }
+                    smoothAnimId = requestAnimationFrame(smoothLoop);
                 }
-                requestAnimationFrame(smoothLoop);
+                smoothAnimId = requestAnimationFrame(smoothLoop);
             }
 
             function setDirection(dir) {
@@ -988,12 +998,12 @@
                     dom.dirVertical.className = 'px-2 py-0.5 rounded text-xs font-semibold bg-white text-indigo-700 shadow-sm transition';
                     dom.dirHorizontal.className = 'px-2 py-0.5 rounded text-xs font-medium text-slate-600 hover:text-slate-900 transition';
                     dom.lensOverlay.className = 'absolute inset-0 pointer-events-none transition-opacity duration-200 lens-overlay-vertical';
-                    dom.gyroNotice.textContent = '📱 Tilt Phone Left ↔ Right to Flip';
+                    dom.gyroNoticeText.textContent = '📱 Tilt Phone Left ↔ Right to Flip';
                 } else {
                     dom.dirHorizontal.className = 'px-2 py-0.5 rounded text-xs font-semibold bg-white text-indigo-700 shadow-sm transition';
                     dom.dirVertical.className = 'px-2 py-0.5 rounded text-xs font-medium text-slate-600 hover:text-slate-900 transition';
                     dom.lensOverlay.className = 'absolute inset-0 pointer-events-none transition-opacity duration-200 lens-overlay-horizontal';
-                    dom.gyroNotice.textContent = '📱 Tilt Phone Forward ↔ Backward to Flip';
+                    dom.gyroNoticeText.textContent = '📱 Tilt Phone Forward ↔ Backward to Flip';
                 }
                 updateLensOverlay();
                 renderSimulator();
@@ -1012,7 +1022,6 @@
             }
 
             function handlePointerTracking(e) {
-                if (state.simulation.mode !== 'pointer' || !state.imageA || !state.imageB) return;
                 const rect = dom.simulatorWrapper.getBoundingClientRect();
                 let ratio = 0.5;
 
@@ -1023,6 +1032,7 @@
                 }
 
                 state.simulation.position = Math.max(0.0, Math.min(1.0, ratio));
+                state.simulation.targetPosition = state.simulation.position;
                 updateTrackerUI();
                 renderSimulator();
             }
@@ -1072,6 +1082,7 @@
 
             function renderSimulator() {
                 if (!state.imageA || !state.imageB) return;
+
                 const targetW = state.imageA.width;
                 const targetH = state.imageA.height;
 
@@ -1325,7 +1336,6 @@
             function resetStudio() {
                 if (!confirm('Reset all loaded images and settings?')) return;
                 stopAnimation();
-                stopTiltSensor();
 
                 if (state.imageA && state.imageA.url) URL.revokeObjectURL(state.imageA.url);
                 if (state.imageB && state.imageB.url) URL.revokeObjectURL(state.imageB.url);
@@ -1334,7 +1344,7 @@
                 state.imageB = null;
                 state.fitMode = 'cover';
                 state.alignment = { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 };
-                state.simulation.mode = 'pointer';
+                state.simulation.mode = isMobileDevice ? 'tilt' : 'pointer';
                 state.simulation.direction = 'vertical';
                 state.simulation.position = 0.5;
                 state.simulation.targetPosition = 0.5;
@@ -1367,7 +1377,7 @@
                 dom.valTransition.textContent = '4%';
                 dom.toggleLens.checked = true;
 
-                setSimMode('pointer');
+                setSimMode(isMobileDevice ? 'tilt' : 'pointer');
                 setDirection('vertical');
                 updateCalculations();
                 onImagesUpdated();
